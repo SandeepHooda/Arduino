@@ -1,0 +1,176 @@
+<html>
+  <head>      
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>LED for ESP8266</title>
+   
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link href="style/app.css" rel="stylesheet">
+<script>
+var wifiStatus = "";
+var previousStatus = "";
+var currentStatus = "";
+var countOfSameStatus = 0;
+var timerCount = 0;
+var disconnenctStatusCountThreashold = 5;
+function getWifiStatus(status){
+	previousStatus = currentStatus;
+	currentStatus = status;
+	if (previousStatus == currentStatus ){
+		countOfSameStatus ++;
+	}else{
+		countOfSameStatus = 0;
+	}
+	if (countOfSameStatus >= disconnenctStatusCountThreashold){
+		countOfSameStatus = disconnenctStatusCountThreashold;
+		return "<br/> Not Connected to WIFI";
+	}else {
+		
+		return "";
+	}
+	
+}
+function setImageVisible(id, visible) {
+    var img = document.getElementById(id);
+    img.style.visibility = (visible ? 'visible' : 'hidden');
+}
+
+function getStatus(){
+var url = "/GetData?collection=testMicroCtrl&datakey=microctrl";
+	
+	var xhttp;
+	if (window.XMLHttpRequest) {
+	    xhttp = new XMLHttpRequest();
+	    } else {
+	    // code for IE6, IE5
+	    xhttp = new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	
+	xhttp.onreadystatechange = function() {
+	    if (xhttp.readyState == 4 && xhttp.status == 200) {
+	    	var obj = JSON.parse(xhttp.responseText);
+	    	var status = obj.microctrl;
+	    	if (status.indexOf("light:on") >= 0){
+	    		document.getElementById("LightStatusOn").style.visibility = 'visible' ;
+	    		document.getElementById("LightStatusOff").style.visibility = 'hidden' ;
+	    	}else {
+	    		document.getElementById("LightStatusOn").style.visibility = 'hidden' ;
+	    		document.getElementById("LightStatusOff").style.visibility = 'visible' ;
+	    	}
+	    	if (status.indexOf("fan:on") >= 0){
+	    		document.getElementById("FanStatusOn").style.visibility = 'visible' ;
+	    		document.getElementById("FanStatusOff").style.visibility = 'hidden' ;
+	    	}else {
+	    		document.getElementById("FanStatusOn").style.visibility = 'hidden'  ;
+	    		document.getElementById("FanStatusOff").style.visibility = 'visible' ;
+	    	}
+	    	
+	    	var microCtrlUpdateTime = status.substring(status.indexOf("@")+1);
+	    	timerCount ++;
+	    	document.getElementById("status").innerHTML = "Status: "+timerCount+ " : "+microCtrlUpdateTime+getWifiStatus(microCtrlUpdateTime);
+	    	
+	    	if (timerCount >= 20){
+	    		timerCount = 0;
+	    		clearInterval(timer);
+	    	}
+	    }
+	  };
+	xhttp.open("GET", url, true);
+	
+	xhttp.send();
+	
+}
+var timer = setInterval(getStatus, 2000);
+function switchOnOff(){
+	var lightCmd = "off";
+	if (document.getElementById("onoffswitchLight").checked){
+		lightCmd = "on";
+	}
+	var light = "{\"light\":\""+lightCmd+"\"";
+	var fanCmd = "off";
+	if (document.getElementById("onoffswitchFan").checked){
+		fanCmd = "on";
+	}
+	var fan = ",\"fan\":\""+fanCmd+"\"}";
+	
+	var url = "https://api.mlab.com/api/1/databases/sandeepdb/collections/bedRoom?apiKey=soblgT7uxiAE6RsBOGwI9ZuLmcCgcvh_";
+	
+	var xhttp;
+	if (window.XMLHttpRequest) {
+	    xhttp = new XMLHttpRequest();
+	    } else {
+	    // code for IE6, IE5
+	    xhttp = new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	
+	xhttp.onreadystatechange = function() {
+	    if (xhttp.readyState == 4 && xhttp.status == 200) {
+	    	if (null != timer ){
+	    		timerCount = 0;
+	    		clearInterval(timer);
+	    	}
+	    	timer = setInterval(getStatus, 2000);
+	    }
+	  };
+	xhttp.open("PUT", url, true);
+	xhttp.setRequestHeader("Content-type", "application/json");
+	xhttp.send(light+fan);
+	
+}
+</script>
+  </head>
+  <body>
+<table>
+<tr>
+<td>FAN&nbsp;&nbsp;</td>
+<td>
+ <div class="onoffswitch">
+    <input type="checkbox" name="onoffswitchFan" class="onoffswitch-checkbox" id="onoffswitchFan" onclick='switchOnOff()'>
+    <label class="onoffswitch-label" for="onoffswitchFan">
+        <span class="onoffswitch-inner"></span>
+        <span class="onoffswitch-switch"></span>
+    </label>
+</div>
+</td>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td><img id="FanStatusOn" src="/images/on.jpg" style="visibility:false;position:absolute;  top:0; width: 30;  height: 30;"></img>
+    <img id="FanStatusOff" src="/images/off.jpg"  style="visibility:true;position:absolute;  top:0; width: 30;  height: 30;""></img>
+</td>
+</tr>
+<tr>
+<td>Light&nbsp;&nbsp;</td>
+<td>
+<div class="onoffswitch">
+    <input type="checkbox" name="onoffswitchLight" class="onoffswitch-checkbox" id="onoffswitchLight" onclick='switchOnOff()'>
+    <label class="onoffswitch-label" for="onoffswitchLight">
+        <span class="onoffswitch-inner"></span>
+        <span class="onoffswitch-switch"></span>
+    </label>
+</div>
+</td>
+<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td><img id="LightStatusOn" src="/images/on.jpg" style="visibility:false;position:absolute;  top:40; width: 30;  height: 30;"></img>
+    <img id="LightStatusOff" src="/images/off.jpg"  style="visibility:true;position:absolute;  top:40; width: 30;  height: 30;"></img>
+</td>
+</table>
+<!--  
+    <div class="row" style="margin-top: 20px;">
+      <div class="col-md-8 col-md-offset-2">
+        <a onclick="switchOnOff('on')" class="btn btn-success btn-block btn-lg">Turn On</a>
+        <br />
+        <a onclick="switchOnOff('off')" class="led btn btn-danger btn-block btn-lg">Turn Off</a>
+        <br />
+       
+      </div>
+    </div>
+    <img id="ledon" src="/images/LEDON.png" style="visibility:false;position:absolute;  top: 200; width: 100;  left:100;    height: 100;"></img>
+    <img id="ledoff" src="/images/LEDOFF.png"  style="visibility:true;position:absolute; top: 200; width: 100; left:100;      height: 100;""></img>
+    -->
+     <div id="status" name="status"></div>
+  </body>
+</html>
