@@ -27,7 +27,8 @@ double myLocationsLon[locationCount]={ 76.8446617, 76.885818};
 char* locationNames[]={"Infosys","Home"}; 
 float flat, flon;
 long distance ;
-long minDistance = 9999999999;
+long nearestKnownLocationDistance = 9999999999;
+String nearestKnownLocation = "";
 String currentLoc = "";
 String lastLoc = "" ;
 String unknownLoc = "UNKNOWN";
@@ -139,8 +140,9 @@ void loop(){
            distance = (unsigned long)TinyGPS::distance_between(flat, flon, myLocationsLat[i], myLocationsLon[i]);
           Serial.print(locationNames[i]);
           Serial.println(distance);
-          if (distance < minDistance){
-            minDistance = distance;
+          if (distance < nearestKnownLocationDistance){
+            nearestKnownLocationDistance = distance;
+            nearestKnownLocation = locationNames[i];
           }
           if (distance <= safeZone ){
             currentLoc = locationNames[i];
@@ -160,22 +162,22 @@ void loop(){
           }else if ( unknownLoc.equals( currentLoc ) && !unknownLoc.equals( lastLoc) ){
             
             String msg = "Exiting ";
-            msg += lastLoc;
+            msg += nearestKnownLocation;// lastLoc;
            Serial.println(msg);
            preapreSms(msg);
             delay(120000 );
           }
 
-         if (minDistance > safeZone && minDistance <= 2000){
+         if (nearestKnownLocationDistance > safeZone && nearestKnownLocationDistance <= 2000){
             digitalWrite(farAway, LOW);
             digitalWrite(near, HIGH);
             digitalWrite(arrived, LOW);
             
-         } else if (minDistance > 2000){
+         } else if (nearestKnownLocationDistance > 2000){
             digitalWrite(farAway, HIGH);
             digitalWrite(near, LOW);
             digitalWrite(arrived, LOW);
-         }else if (minDistance <= 200){
+         }else if (nearestKnownLocationDistance <= 200){
             digitalWrite(farAway, LOW);
             digitalWrite(near, LOW);
             digitalWrite(arrived, HIGH);
