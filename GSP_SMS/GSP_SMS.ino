@@ -21,10 +21,10 @@ static void print_str(const char *str, int len);
 char* myContacts[contactsLen]={"9216411835"}; 
 
 //Locations
-#define locationCount 2
-double myLocationsLat[locationCount]={ 30.7275903,30.667516};
-double myLocationsLon[locationCount]={ 76.8446617, 76.885818}; 
-char* locationNames[]={"Infosys","Home"}; 
+#define locationCount 3
+double myLocationsLat[locationCount]={ 30.7275903,30.667516,30.667313};
+double myLocationsLon[locationCount]={ 76.8446617, 76.885818, 76.862419}; 
+char* locationNames[]={"Infosys","Home", "Gurukul"}; 
 float flat, flon;
 long distance ;
 long nearestKnownLocationDistance = 9999999999;
@@ -36,6 +36,7 @@ boolean gpsGotLocation = false;
 unsigned long smsSentTime;
 int smsfrequencyMin = 30;
 int safeZone = 300;
+int farAwarDistance = 1000;
 
 #define gpsLED 13//Black
 #define farAway 12//Purple
@@ -167,17 +168,17 @@ void loop(){
            preapreSms(msg);
             delay(120000 );
           }
-
-         if (nearestKnownLocationDistance > safeZone && nearestKnownLocationDistance <= 2000){
+         
+         if (nearestKnownLocationDistance > safeZone && nearestKnownLocationDistance <= farAwarDistance){
             digitalWrite(farAway, LOW);
             digitalWrite(near, HIGH);
             digitalWrite(arrived, LOW);
             
-         } else if (nearestKnownLocationDistance > 2000){
+         } else if (nearestKnownLocationDistance > farAwarDistance){
             digitalWrite(farAway, HIGH);
             digitalWrite(near, LOW);
             digitalWrite(arrived, LOW);
-         }else if (nearestKnownLocationDistance <= 200){
+         }else if (nearestKnownLocationDistance <= safeZone){
             digitalWrite(farAway, LOW);
             digitalWrite(near, LOW);
             digitalWrite(arrived, HIGH);
