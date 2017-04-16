@@ -18,7 +18,7 @@ static void print_date(TinyGPS &gps);
 static void print_str(const char *str, int len);
 
 #define contactsLen 1
-char* myContacts[contactsLen]={"7837394152"}; 
+char* myContacts[contactsLen]={"9216411835"}; 
 
 //Locations
 #define locationCount 2
@@ -36,14 +36,17 @@ unsigned long smsSentTime;
 int smsfrequencyMin = 30;
 int safeZone = 300;
 
-#define gpsLED 13
-#define farAway 12
-#define near 11
-#define arrived 10
+#define gpsLED 13//Black
+#define farAway 12//Purple
+#define near 11//Green
+#define arrived 10//Grey
+#define testpoint 8
 void setup()
 {
 
-  pinMode(gpsLED, OUTPUT);
+pinMode(testpoint, OUTPUT);
+digitalWrite(testpoint, HIGH);
+ pinMode(gpsLED, OUTPUT);
   pinMode(farAway, OUTPUT);
   pinMode(near, OUTPUT);
   pinMode(arrived, OUTPUT);
@@ -106,6 +109,7 @@ void preapreSms(String msg){
             SendMessage(msg, myContacts[i]);
           }
           smsSentTime = millis();
+          Serial.println("SMS sent");
 }
 
 void loop(){
