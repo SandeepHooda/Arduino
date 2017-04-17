@@ -1,4 +1,4 @@
- #include <SoftwareSerial.h>
+#include <SoftwareSerial.h>
 #include <TinyGPS.h>
 
 SoftwareSerial mySerial(5, 6);//rx, tx 
@@ -27,16 +27,17 @@ double myLocationsLon[locationCount]={ 76.8446617, 76.885818, 76.862419};
 char* locationNames[]={"Infosys","Home", "Gurukul"}; 
 float flat, flon;
 long distance ;
-long nearestKnownLocationDistance = 9999999999;
+long nearestKnownLocationDistanceInit = 2000;
+long nearestKnownLocationDistance = nearestKnownLocationDistanceInit;
 String nearestKnownLocation = "";
-String currentLoc = "";
-String lastLoc = "" ;
+String currentLoc = "UNKNOWN";
+String lastLoc = "UNKNOWN" ;
 String unknownLoc = "UNKNOWN";
 boolean gpsGotLocation = false;
 unsigned long smsSentTime;
 int smsfrequencyMin = 30;
-int safeZone = 300;
-int farAwarDistance = 1000;
+long safeZone = 300;
+long farAwarDistance = 1000;
 
 #define gpsLED 13//Black
 #define farAway 12//Purple
@@ -57,15 +58,7 @@ digitalWrite(testpoint, HIGH);
   digitalWrite(gpsLED, HIGH);
   delay(1000);
   digitalWrite(gpsLED, LOW);
-  digitalWrite(farAway, HIGH);
-  delay(1000);
-  digitalWrite(farAway, LOW);
-  digitalWrite(near, HIGH);
-  delay(1000);
-  digitalWrite(near, LOW);
-  digitalWrite(arrived, HIGH);
-  delay(1000);
-  digitalWrite(arrived, LOW);
+  triColorLED();
   //Test
 
   
@@ -100,6 +93,23 @@ digitalWrite(testpoint, HIGH);
     
 }*/
 
+void triColorLED(){
+  digitalWrite(farAway, LOW);
+  digitalWrite(near, LOW);
+  digitalWrite(arrived, LOW);
+  delay(1000);
+  digitalWrite(farAway, HIGH);
+  delay(1000);
+  digitalWrite(farAway, LOW);
+  digitalWrite(near, HIGH);
+  delay(1000);
+  digitalWrite(near, LOW);
+  digitalWrite(arrived, HIGH);
+  delay(1000);
+  digitalWrite(arrived, LOW);
+  delay(1000);
+}
+
 void preapreSms(String msg){
           msg += " https://www.google.com/maps/place/@";
           msg += String(flat,6);
@@ -111,16 +121,37 @@ void preapreSms(String msg){
             SendMessage(msg, myContacts[i]);
           }
           smsSentTime = millis();
+          triColorLED();
           Serial.println("SMS sent");
 }
 
+void getMeNearestLocation(){
+  nearestKnownLocationDistance = nearestKnownLocationDistanceInit; //Rest this value
+  nearestKnownLocation = "";
+  for(int i=0;i<locationCount;i++){
+           distance = (unsigned long)TinyGPS::distance_between(flat, flon, myLocationsLat[i], myLocationsLon[i]);
+          
+          if (distance < nearestKnownLocationDistance){
+            nearestKnownLocationDistance = distance;
+            nearestKnownLocation = locationNames[i];
+          }
+          if (distance <= safeZone ){
+            currentLoc = locationNames[i];
+            break;
+          }else {
+            currentLoc = unknownLoc;
+          }
+        } //Loop thru all the known locatios End
+  
+}
 void loop(){
   loopForGPS();
   if (flat != TinyGPS::GPS_INVALID_F_ANGLE){
 
         digitalWrite(gpsLED, HIGH);
         if(!gpsGotLocation){//Send one sms as soon as GPS gets location on power on
-          preapreSms("Starting from");
+          getMeNearestLocation();
+          preapreSms("Starting from "+nearestKnownLocation);
           gpsGotLocation = true;
         }else {
           if((millis() - smsSentTime) > (60000 * smsfrequencyMin) ){
@@ -137,44 +168,32 @@ void loop(){
         print_float(flon,0,10,6);
         Serial.println(" ");
         Serial.println("---End-- ");
-        for(int i=0;i<locationCount;i++){
-           distance = (unsigned long)TinyGPS::distance_between(flat, flon, myLocationsLat[i], myLocationsLon[i]);
-          Serial.print(locationNames[i]);
-          Serial.println(distance);
-          if (distance < nearestKnownLocationDistance){
-            nearestKnownLocationDistance = distance;
-            nearestKnownLocation = locationNames[i];
-          }
-          if (distance <= safeZone ){
-            currentLoc = locationNames[i];
-            break;
-          }else {
-            currentLoc = unknownLoc;
-          }
-        }
         
+        getMeNearestLocation();
+
+        if((millis() - smsSentTime) > 60000  ){ //Don't sent SMS for next 1 minute
           if (!unknownLoc.equals( currentLoc ) && unknownLoc.equals( lastLoc)){
               String msg = "Entering ";
-             msg += currentLoc;
-             Serial.println(msg);
-             preapreSms(msg);
-            delay(120000 );
-            
+              msg += currentLoc;
+              Serial.println(msg);
+              preapreSms(msg);
           }else if ( unknownLoc.equals( currentLoc ) && !unknownLoc.equals( lastLoc) ){
             
             String msg = "Exiting ";
             msg += nearestKnownLocation;// lastLoc;
-           Serial.println(msg);
-           preapreSms(msg);
-            delay(120000 );
+            Serial.println(msg);
+            preapreSms(msg);
+            
           }
+        }
+          
          
          if (nearestKnownLocationDistance > safeZone && nearestKnownLocationDistance <= farAwarDistance){
             digitalWrite(farAway, LOW);
             digitalWrite(near, HIGH);
             digitalWrite(arrived, LOW);
             
-         } else if (nearestKnownLocationDistance > farAwarDistance){
+         } else if ( (nearestKnownLocationDistance > farAwarDistance) || unknownLoc.equals( currentLoc )){
             digitalWrite(farAway, HIGH);
             digitalWrite(near, LOW);
             digitalWrite(arrived, LOW);
