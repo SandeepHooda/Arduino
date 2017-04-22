@@ -4,7 +4,7 @@ int livePersonLeastMovementDistance = 3;//Live person will move atleat this much
 int personMiniWidth = 10;//Person is atleast 10 cm wide
 #define driverSeatBeltSignalPin 12
 #define pillionSeatBeltSignalPin  13
-int footMatDistance = 40;//Distance of foor mat from sensor
+int footMatDistance = 45;//Distance of foor mat from sensor
 #define ultrasonicTriggerPin 6 
 #define ultrasonicEchoPin 7 
 #define advisoryPin  8
@@ -58,7 +58,7 @@ void loop() {
 void isPillionSittingOnSeat(){
   delay(200);
   int pillionSeatDistanceNew = getDistance();
-  Serial.println("---------");
+  Serial.println("----pillion distance-----");
 Serial.println(pillionSeatDistanceNew);
 Serial.println("#############");
 //delay(1000);

@@ -18,7 +18,7 @@ static void print_date(TinyGPS &gps);
 static void print_str(const char *str, int len);
 
 #define contactsLen 1
-char* myContacts[contactsLen]={"9216411835"}; 
+char* myContacts[contactsLen]={"7837394152"}; 
 
 //Locations
 #define locationCount 3
