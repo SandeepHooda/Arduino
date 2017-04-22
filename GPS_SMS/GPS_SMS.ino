@@ -1,6 +1,7 @@
 #include <SoftwareSerial.h>
 #include <TinyGPS.h>
 
+
 SoftwareSerial mySerial(5, 6);//rx, tx 
 //5 rx of arduinto -> tx of module
 //6 tx of arduinto -> rx of module
@@ -19,6 +20,9 @@ static void print_str(const char *str, int len);
 
 #define contactsLen 1
 char* myContacts[contactsLen]={"7837394152"}; 
+
+#define emergencyContactsLen 2
+char* emergencyContacts[emergencyContactsLen]={"9316046895","9216411835"}; 
 
 //Locations
 #define locationCount 3
@@ -42,13 +46,23 @@ long farAwarDistance = 1000;
 #define gpsLED 13//Black
 #define farAway 12//Purple
 #define near 11//Green
-#define arrived 10//Grey
-#define testpoint 8
+#define arrived 10//Grey 
+
+#define emergencySwitch 2
+#define rf_d_Yellow 2
+#define rf_c_Orange 7
+#define rf_b_Red 8
+#define rf_a_Brown 9
+
 void setup()
 {
 
-pinMode(testpoint, OUTPUT);
-digitalWrite(testpoint, HIGH);
+pinMode(emergencySwitch, INPUT);
+pinMode(rf_d_Yellow, INPUT);
+pinMode(rf_c_Orange, INPUT);
+pinMode(rf_b_Red, INPUT);
+pinMode(rf_a_Brown, INPUT);
+
  pinMode(gpsLED, OUTPUT);
   pinMode(farAway, OUTPUT);
   pinMode(near, OUTPUT);
@@ -71,8 +85,8 @@ digitalWrite(testpoint, HIGH);
   ss.begin(9600);
   delay(300);
   
- //preapreSms("hi");
- 
+ //preapreSms("hi", false);
+ SendMessage("Car started", "9216411835");
 
 }
 
@@ -110,20 +124,28 @@ void triColorLED(){
   delay(1000);
 }
 
-void preapreSms(String msg){
+void preapreSms(String msg, boolean isEmergency){
           msg += " https://www.google.com/maps/place/@";
           msg += String(flat,6);
           msg += ",";
           msg += String(flon,6);
           msg += ",16z";
           Serial.println(msg);
-          for (int i=0; i<contactsLen;i++){
-            SendMessage(msg, myContacts[i]);
+          if (isEmergency){
+            for (int i=0; i<emergencyContactsLen;i++){
+              SendMessage(msg, emergencyContacts[i]);
+            }
+          }else {
+            for (int i=0; i<contactsLen;i++){
+              SendMessage(msg, myContacts[i]);
+            }
           }
+          
           smsSentTime = millis();
           triColorLED();
           Serial.println("SMS sent");
 }
+
 
 void getMeNearestLocation(){
   nearestKnownLocationDistance = nearestKnownLocationDistanceInit; //Rest this value
@@ -145,18 +167,38 @@ void getMeNearestLocation(){
   
 }
 void loop(){
+  
+   if(digitalRead(emergencySwitch)){
+    Serial.println("I am in danger. Please help");
+     preapreSms("I am in danger. Please help",true);
+      delay(500);
+      
+   }
+ /* if (digitalRead(rf_d_Yellow)){
+    delay(500);
+     Serial.println("Sms from Car GPS ");
+    //SendMessage("Sms from Car GPS", "9216411835");
+    
+  }
+
+  if (digitalRead(rf_c_Orange) || digitalRead(rf_b_Red) || digitalRead(rf_a_Brown)){
+    delay(500);
+    Serial.println("I am in danger. Please help");
+     //preapreSms("I am in danger. Please help",true);
+ }*/
+ 
   loopForGPS();
   if (flat != TinyGPS::GPS_INVALID_F_ANGLE){
 
         digitalWrite(gpsLED, HIGH);
         if(!gpsGotLocation){//Send one sms as soon as GPS gets location on power on
           getMeNearestLocation();
-          preapreSms("Starting from "+nearestKnownLocation);
+          preapreSms("Starting from "+nearestKnownLocation, false);
           gpsGotLocation = true;
         }else {
           if((millis() - smsSentTime) > (60000 * smsfrequencyMin) ){
             
-            preapreSms(" Periodic update: I am at");
+            preapreSms(" Periodic update: I am at", false);
           }
         }
        
@@ -176,13 +218,13 @@ void loop(){
               String msg = "Entering ";
               msg += currentLoc;
               Serial.println(msg);
-              preapreSms(msg);
+              preapreSms(msg, false);
           }else if ( unknownLoc.equals( currentLoc ) && !unknownLoc.equals( lastLoc) ){
             
             String msg = "Exiting ";
             msg += nearestKnownLocation;// lastLoc;
             Serial.println(msg);
-            preapreSms(msg);
+            preapreSms(msg, false);
             
           }
         }
@@ -203,7 +245,7 @@ void loop(){
             digitalWrite(arrived, HIGH);
          }
           
-      // preapreSms(" I am staying at ");
+      // preapreSms(" I am staying at ", false);
         lastLoc = currentLoc;
        // print_int( distance, 0xFFFFFFFF, 9);
     

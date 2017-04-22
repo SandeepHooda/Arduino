@@ -13,7 +13,7 @@
 #include <TTS.h>
 
 // Media pins
-#define PWM 3
+#define PWM 10
 #define LED 13                          
 
 TTS text2speech(PWM);  // default is digital pin 10
