@@ -31,7 +31,7 @@ double myLocationsLon[locationCount]={ 76.8446617, 76.885818, 76.862419};
 char* locationNames[]={"Infosys","Home", "Gurukul"}; 
 float flat, flon;
 long distance ;
-long nearestKnownLocationDistanceInit = 2000;
+long nearestKnownLocationDistanceInit = 10000;
 long nearestKnownLocationDistance = nearestKnownLocationDistanceInit;
 String nearestKnownLocation = "";
 String currentLoc = "UNKNOWN";
@@ -53,15 +53,22 @@ long farAwarDistance = 1000;
 #define rf_c_Orange 7
 #define rf_b_Red 8
 #define rf_a_Brown 9
+const int buzzer = 9; //buzzer to arduino pin 9
+float mySpeed = 0;
+
+char SMS_INPUT[100];
+int x;
+String completeSMS ="";
 
 void setup()
 {
-
+pinMode(buzzer, OUTPUT); // Set buzzer - pin 9 as an output
+noTone(buzzer);   
 pinMode(emergencySwitch, INPUT);
-pinMode(rf_d_Yellow, INPUT);
+/*pinMode(rf_d_Yellow, INPUT);
 pinMode(rf_c_Orange, INPUT);
 pinMode(rf_b_Red, INPUT);
-pinMode(rf_a_Brown, INPUT);
+pinMode(rf_a_Brown, INPUT);*/
 
  pinMode(gpsLED, OUTPUT);
   pinMode(farAway, OUTPUT);
@@ -87,9 +94,50 @@ pinMode(rf_a_Brown, INPUT);
   
  //preapreSms("hi", false);
  SendMessage("Car started", "9216411835");
-
+  //readSMS();
+  //deleteSMS();
+  
 }
 
+void readSMS(){
+  while( mySerial.available() > 0) mySerial.read();    // Clean the input buffer
+Serial.println("cleaned buffer" );
+  mySerial.println("AT+CMGL=\"ALL\"");    // Send the AT command 
+  
+unsigned long previous;
+long timeout = 5000;
+   answer = 0;
+   previous = millis();
+       
+        // this loop reads the data of the SMS
+        do{
+            // if there are data in the UART input buffer, reads it and checks for the asnwer
+            if(mySerial.available() > 0){    
+                SMS_INPUT[x] = mySerial.read();
+                x++;
+                if (x>=sizeof(SMS_INPUT)){
+                  completeSMS += SMS_INPUT;
+                  memset(SMS_INPUT, '\0', sizeof(SMS_INPUT));
+                  x=0;
+                }
+                // check if the desired answer (OK) is in the response of the module
+                if (strstr(SMS_INPUT, "OK") != NULL)    
+                {
+                    answer = 1;
+                    completeSMS += SMS_INPUT;
+                }
+            }
+        }while((answer == 0) && ((millis() - previous) < timeout));
+        Serial.println("completeSMS ============" );
+        Serial.println(completeSMS);
+        Serial.println(" ====== Response received in time ======" );
+        Serial.println((millis() - previous) < timeout);
+        Serial.println("End of SMS ============" );
+        Serial.println(x );
+}
+void deleteSMS(){
+mySerial.println("AT+CMGD=0,4");    //Delete SMS  
+}
 
 /*void readContacts(){
   char* response;
@@ -166,6 +214,44 @@ void getMeNearestLocation(){
         } //Loop thru all the known locatios End
   
 }
+void playBuzzer( float mySpeed){
+  float speedLimit = 60;
+  if (nearestKnownLocationDistance >= nearestKnownLocationDistanceInit){
+    speedLimit = 80;
+  }
+  Serial.println("buzzer");
+   Serial.println(mySpeed);
+  if (mySpeed >  (speedLimit + 15.0)){
+      for(int i=0; i<20;i++){
+         tone(buzzer, 2000); // Send 1KHz sound signal...
+         delay(100);        // ...for 1 sec
+         noTone(buzzer);     // Stop sound...
+         delay(100); 
+      }
+   }else  if (mySpeed > (speedLimit + 5.0)) {
+
+    Serial.println("buzzer");
+   Serial.println(mySpeed);
+      for(int i=0; i<5;i++){
+         tone(buzzer, 2000); // Send 1KHz sound signal...
+         delay(500);        // ...for 1 sec
+         noTone(buzzer);     // Stop sound...
+         delay(500); 
+      }
+   }else  if (mySpeed > speedLimit) {
+      for(int i=0; i<5;i++){
+         tone(buzzer, 2000); // Send 1KHz sound signal...
+         delay(1000);        // ...for 1 sec
+         noTone(buzzer);     // Stop sound...
+         delay(1000); 
+      }
+   }else {
+    
+   }
+}
+void loop1(){
+  playBuzzer(64.0);
+}
 void loop(){
   
    if(digitalRead(emergencySwitch)){
@@ -189,7 +275,11 @@ void loop(){
  
   loopForGPS();
   if (flat != TinyGPS::GPS_INVALID_F_ANGLE){
-
+    Serial.println("My Speed ::: ");
+    print_float(mySpeed, 0, 10, 3);
+    Serial.println("::::: ");
+    
+      playBuzzer(mySpeed);
         digitalWrite(gpsLED, HIGH);
         if(!gpsGotLocation){//Send one sms as soon as GPS gets location on power on
           getMeNearestLocation();
@@ -259,7 +349,7 @@ void loop(){
 
  void SendMessage( String text, String phoneNo)
 {
-  
+  //return;
   mySerial.println("AT+CMGF=1");    //Sets the GSM Module in Text Mode
   delay(1000);  // Delay of 1000 milli seconds or 1 second
   String phoneNoCmd = "AT+CMGS=\"";
@@ -317,6 +407,12 @@ void loopForGPS()
   print_date(gps);
   print_float(gps.f_altitude(), TinyGPS::GPS_INVALID_F_ALTITUDE, 7, 2);
   print_float(gps.f_course(), TinyGPS::GPS_INVALID_F_ANGLE, 7, 2);
+  if (TinyGPS::GPS_INVALID_F_SPEED != gps.f_speed_kmph()){
+    mySpeed = gps.f_speed_kmph();
+  }else {
+    mySpeed =0;
+  }
+  
   print_float(gps.f_speed_kmph(), TinyGPS::GPS_INVALID_F_SPEED, 6, 2);
   print_str(gps.f_course() == TinyGPS::GPS_INVALID_F_ANGLE ? "*** " : TinyGPS::cardinal(gps.f_course()), 6);
   print_int(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0xFFFFFFFF : (unsigned long)TinyGPS::distance_between(flat, flon, LONDON_LAT, LONDON_LON) / 1000, 0xFFFFFFFF, 9);
