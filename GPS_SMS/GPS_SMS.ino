@@ -63,7 +63,8 @@ String completeSMS ="";
 void setup()
 {
 pinMode(buzzer, OUTPUT); // Set buzzer - pin 9 as an output
-noTone(buzzer);   
+tone(buzzer, 1000, 1000);  
+
 pinMode(emergencySwitch, INPUT);
 /*pinMode(rf_d_Yellow, INPUT);
 pinMode(rf_c_Orange, INPUT);
@@ -223,6 +224,7 @@ void playBuzzer( float mySpeed){
    Serial.println(mySpeed);
   if (mySpeed >  (speedLimit + 15.0)){
       for(int i=0; i<20;i++){
+        Serial.println("buzzer");
          tone(buzzer, 2000); // Send 1KHz sound signal...
          delay(100);        // ...for 1 sec
          noTone(buzzer);     // Stop sound...
@@ -250,7 +252,7 @@ void playBuzzer( float mySpeed){
    }
 }
 void loop1(){
-  playBuzzer(64.0);
+  playBuzzer(164.0);
 }
 void loop(){
   
