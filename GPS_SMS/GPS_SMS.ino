@@ -62,6 +62,7 @@ String completeSMS ="";
 
 void setup()
 {
+  delay(2000);
 pinMode(buzzer, OUTPUT); // Set buzzer - pin 9 as an output
 tone(buzzer, 1000, 1000);  
 
@@ -218,35 +219,17 @@ void getMeNearestLocation(){
 void playBuzzer( float mySpeed){
   float speedLimit = 60;
   if (nearestKnownLocationDistance >= nearestKnownLocationDistanceInit){
-    speedLimit = 80;
+    speedLimit = 100;
   }
   Serial.println("buzzer");
    Serial.println(mySpeed);
-  if (mySpeed >  (speedLimit + 15.0)){
-      for(int i=0; i<20;i++){
-        Serial.println("buzzer");
-         tone(buzzer, 2000); // Send 1KHz sound signal...
-         delay(100);        // ...for 1 sec
-         noTone(buzzer);     // Stop sound...
-         delay(100); 
-      }
-   }else  if (mySpeed > (speedLimit + 5.0)) {
+  if (mySpeed >  (speedLimit + 20.0)){
+      tone(buzzer, 1000, 3000); 
+   }else  if (mySpeed > (speedLimit + 10.0)) {
 
-    Serial.println("buzzer");
-   Serial.println(mySpeed);
-      for(int i=0; i<5;i++){
-         tone(buzzer, 2000); // Send 1KHz sound signal...
-         delay(500);        // ...for 1 sec
-         noTone(buzzer);     // Stop sound...
-         delay(500); 
-      }
+   tone(buzzer, 1000, 2000); 
    }else  if (mySpeed > speedLimit) {
-      for(int i=0; i<5;i++){
-         tone(buzzer, 2000); // Send 1KHz sound signal...
-         delay(1000);        // ...for 1 sec
-         noTone(buzzer);     // Stop sound...
-         delay(1000); 
-      }
+      tone(buzzer, 1000, 1000); 
    }else {
     
    }
