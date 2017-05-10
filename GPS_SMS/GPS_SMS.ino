@@ -192,6 +192,7 @@ void preapreSms(String msg, boolean isEmergency){
           }
           
           smsSentTime = millis();
+          tone(buzzer, 1000, 1000);
           triColorLED();
           Serial.println("SMS sent");
 }
