@@ -17,10 +17,12 @@
 ESP8266WiFiMulti WiFiMulti;
 
 String host     = "http://sandeephoodaiot.appspot.com"; // Your domain 
-String pathToGetCommand          = "/GetData?collection=bedRoom"; //"/GetData?collection=test&datakey=bedRoom";
-String pathToUpdate          = "/PutData?collection=testMicroCtrl&datakey=microctrl&value=";
-const int lightPin        = 2;
-const int fanPin        = 0;
+String pathToGetCommand          = "/GetData?collection=bedRoom_sonu.hooda@gmail.com"; //"/GetData?collection=test&datakey=bedRoom"; it should return json data like this : { "light" : "off" , "fan" : "on"} 
+String pathToUpdate          = "/PutData?collection=microCtrl_bedRoom_sonu.hooda@gmail.com&datakey=microctrl&value=";
+
+
+#define lightPin D5  
+#define fanPin  D0  
 
 void setup() {
 
@@ -85,11 +87,11 @@ Serial.println("Resource path ="+resourcePath );
                     if (strcmp(json_parsed["light"], "on") == 0) {
                       digitalWrite(lightPin, HIGH); 
                       response = "light:on";
-                      //Serial.println("LED ON");
+                      Serial.println("LED ON");
                     } else if (strcmp(json_parsed["light"], "off") == 0) {
                       digitalWrite(lightPin, LOW);
                       response = "light:off";
-                     // Serial.println("led off");
+                      Serial.println("led off");
                      }
             
                     if (strcmp(json_parsed["fan"], "on") == 0) {
