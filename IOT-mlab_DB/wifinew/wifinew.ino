@@ -30,6 +30,8 @@ void setup() {
    // USE_SERIAL.setDebugOutput(true);
  pinMode(lightPin, OUTPUT); 
   pinMode(fanPin, OUTPUT); 
+  digitalWrite(lightPin, HIGH);
+  digitalWrite(fanPin, HIGH);
     USE_SERIAL.println();
     USE_SERIAL.println();
     USE_SERIAL.println();
