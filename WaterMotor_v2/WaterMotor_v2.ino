@@ -3,6 +3,7 @@
 #define led PD2
 #define motorSignalInput PD3
 #define relay PD4
+#define gnd PD5
 boolean tankFull = false;
 
 void setup() {
@@ -11,10 +12,11 @@ void setup() {
   pinMode(motorSignalInput, INPUT);
   pinMode(relay, OUTPUT);
   pinMode(led, OUTPUT);
-  
+  pinMode(gnd, OUTPUT);
+   
   digitalWrite(led, HIGH);
   digitalWrite(relay, HIGH);
-  
+  digitalWrite(gnd, LOW);
 }
 
 
