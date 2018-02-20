@@ -48,10 +48,28 @@ void loop() {
      }
   }
   if (digitalRead(motorSignalFull)){
-     tankFull = true;
+    for (int i=0;i<10;i++){
+      if (digitalRead(motorSignalFull)){
+         blinkLED();// 1 sec delay
+      }else {
+        break;
+      }
+      
+    }
+    if (digitalRead(motorSignalFull)){
+      tankFull = true;
+    }
+     
    }
  
 }
 
+void blinkLED(){
+    digitalWrite(led, LOW);
+    delay(500);
+    digitalWrite(led, HIGH);
+    delay(500);
+    
+}
 
 

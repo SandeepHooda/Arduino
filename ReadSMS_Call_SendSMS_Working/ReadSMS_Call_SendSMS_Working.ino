@@ -106,6 +106,7 @@ delay(5000);
   delay(1000);
   if (mySerial.available()>0)
    Serial.println(mySerial.read());
+   Serial.println("Done call ");
  }
 
  void Disconnect(){
