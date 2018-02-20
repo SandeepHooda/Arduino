@@ -4,6 +4,8 @@
 #define motorSignalFull 9
 #define motorSignalEmpty 8
 #define relay 7
+#define waterSourceAvailableIP 11
+#define waterSourceAvailableOP 10
 
 boolean tankFull = false;
 boolean tankEmpty = false;
@@ -11,12 +13,14 @@ boolean checkingTankEmpty = false;
 
 void setup() {
   Serial.begin(9600);
-  
+  pinMode(waterSourceAvailableIP, INPUT);
+  pinMode(waterSourceAvailableOP, OUTPUT);
   pinMode(motorSignalFull, INPUT);
   pinMode(motorSignalEmpty, INPUT);
   pinMode(relay, OUTPUT);
   pinMode(led, OUTPUT);
 
+ digitalWrite(waterSourceAvailableOP, HIGH);
  
   turnOnMotor();
   delay(200);
@@ -28,21 +32,29 @@ void turnOnMotor(){
    digitalWrite(relay, HIGH);
    tankFull = false;
 }
-void turnOffMotor(){
+
+void turnOffMotor(int delayTime){
     digitalWrite(led, HIGH);
-    delay(500);
+    delay(delayTime);
     digitalWrite(led, LOW);
-    delay(500);
+    delay(delayTime);
     digitalWrite(relay, LOW);
 }
 
 void loop() {
+
+  if (!digitalRead(waterSourceAvailableIP)){
+   turnOffMotor(100);//Water at source is not available
+    return;
+  }else {
+    digitalWrite(led, HIGH);
+  }
   if (digitalRead(motorSignalEmpty)){
     //At any point if we find high on motorSignalEmpty that means that empty signal is also being monitored
      checkingTankEmpty = true;
   }
   if (tankFull){
-     turnOffMotor();
+     turnOffMotor(500);
      if (checkingTankEmpty && !digitalRead(motorSignalEmpty)){
         turnOnMotor();
      }
