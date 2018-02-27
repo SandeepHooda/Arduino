@@ -8,6 +8,8 @@ String phoneNo;
 {
   pinMode(PD4, INPUT);
   pinMode(PD5, OUTPUT);
+  pinMode(PD6, OUTPUT);
+  digitalWrite(PD6, LOW);
   mySerial.begin(9600);   // Setting the baud rate of GSM Module  
   Serial.begin(9600);    // Setting the baud rate of Serial Monitor (Arduino)
   delay(100);
@@ -17,10 +19,11 @@ String phoneNo;
 }
 void loop(){
   if (digitalRead(PD4)){
+    Call();
     digitalWrite(PD5, HIGH);
     delay(2000);
     digitalWrite(PD5, LOW);
-    Call();
+    
     
   }
 }
@@ -29,7 +32,7 @@ void loop(){
 {
   
    
-  int8_t answer=  sendATcommand("AT+CPBR=1", "+CPBR: 1,\"", 2000);  
+ /* int8_t answer=  sendATcommand("AT+CPBR=1", "+CPBR: 1,\"", 2000);  
  
   if (answer == 1){
     readNumber();
@@ -41,9 +44,9 @@ void loop(){
     Serial.print(" Call cammand is ");
      Serial.println(callCmd);
   }else {
-    Serial.println(phoneNo);
+    Serial.println(phoneNo);*/
     mySerial.println("ATD9216411835;"); // AT Command to make a call
-  }
+ // }
   
  
   delay(1000);
