@@ -1,4 +1,4 @@
-  #include <SoftwareSerial.h>
+#include <SoftwareSerial.h>
 SoftwareSerial mySerial(PD2, PD3);//rx, tx
 
 //2 rx of arduinto -> tx of SIM module
@@ -13,12 +13,13 @@ String phoneNo;
   mySerial.begin(9600);   // Setting the baud rate of GSM Module  
   Serial.begin(9600);    // Setting the baud rate of Serial Monitor (Arduino)
   delay(100);
-  Serial.println("Welcome ");
+  Serial.println("Welcome By GateKeeper");
  
   
 }
 void loop(){
   if (digitalRead(PD4)){
+    Serial.println("Making a call ");
     Call();
     digitalWrite(PD5, HIGH);
     delay(2000);
@@ -32,25 +33,28 @@ void loop(){
 {
   
    
- /* int8_t answer=  sendATcommand("AT+CPBR=1", "+CPBR: 1,\"", 2000);  
+  int8_t answer=  sendATcommand("AT+CPBR=1", "+CPBR: 1,\"", 2000);  
  
   if (answer == 1){
     readNumber();
     
   }
+  Serial.print("Phone No: ");
+   Serial.println(phoneNo);
   if (phoneNo.length() == 10){
     String callCmd = "ATD"+phoneNo+";";
     mySerial.println(callCmd); // AT Command to make a call
     Serial.print(" Call cammand is ");
      Serial.println(callCmd);
   }else {
-    Serial.println(phoneNo);*/
+   
     mySerial.println("ATD9216411835;"); // AT Command to make a call
- // }
+  }
   
  
   delay(1000);
   if (mySerial.available()>0)
+   Serial.print("Response from serial");
    Serial.println(mySerial.read());
  }
 
