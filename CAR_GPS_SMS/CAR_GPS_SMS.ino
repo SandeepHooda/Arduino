@@ -24,10 +24,10 @@ static void print_date(TinyGPS &gps);
 static void print_str(const char *str, int len);
 
 #define contactsLen 2
-char* myContacts[contactsLen]={"9316046895","9216411835"}; 
+char* myContacts[contactsLen]={"9316046895","7837394152","9216411835"}; 
 
 #define emergencyContactsLen 2
-char* emergencyContacts[emergencyContactsLen]={"9316046895","9216411835"}; 
+char* emergencyContacts[emergencyContactsLen]={"9316046895","7837394152","9216411835"}; 
 
 //Locations
 #define locationCount 3
@@ -179,7 +179,7 @@ if (loopCounter >=10){
   Serial.println("Location Update ");
   blinkLed(1000, 2);
   getMeNearestLocation();
-   preapreSms("Starting from "+nearestKnownLocation, false);
+   preapreSms("My Location is "+nearestKnownLocation, false);
    delay(60000);
  }
 
@@ -191,7 +191,7 @@ if (loopCounter >=10){
     if (!carLocationSenttoMe){
       carLocationSenttoMe = true;
        getMeNearestLocation();
-      SendMessage("Car started "+nearestKnownLocation, "9216411835");
+      //SendMessage("Car started "+nearestKnownLocation, "9216411835");
     }
    
     print_float(mySpeed, 0, 10, 3);
