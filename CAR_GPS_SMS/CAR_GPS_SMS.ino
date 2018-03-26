@@ -23,10 +23,10 @@ static void print_int(unsigned long val, unsigned long invalid, int len);
 static void print_date(TinyGPS &gps);
 static void print_str(const char *str, int len);
 
-#define contactsLen 2
+#define contactsLen 3
 char* myContacts[contactsLen]={"9316046895","7837394152","9216411835"}; 
 
-#define emergencyContactsLen 2
+#define emergencyContactsLen 3
 char* emergencyContacts[emergencyContactsLen]={"9316046895","7837394152","9216411835"}; 
 
 //Locations
