@@ -74,8 +74,78 @@ pinMode(LEDSignal , OUTPUT);
   ss.begin(9600);
   blinkLed(1000, 2);
 
+   mySerial.println("ATD9216411835;"); // AT Command to make a call
+    delay(5000);
+    mySerial.println("ATD9216411835;"); // AT Command to make a call
+    delay(5000);
+  
+
 }
 
+void checkIncommingCall() {
+  int8_t answer;
+
+  //program is allways waiting for a +CLIP to confirm a call was received
+  //it will receive a +CLIP command for every ring the calling phone does
+  while (answer = sendATcommand("ID", "+CLIP:", 2000)) {
+    //answer is 1 if sendATcommand detects +CLIP
+    if (answer == 1)
+    {
+      getMeNearestLocation();//Send location updates on incomming call
+      preapreSms("My Location is "+nearestKnownLocation, false);
+    }
+}
+}
+ int8_t sendATcommand(char* ATcommand, char* expected_answer, unsigned int timeout){
+
+    uint8_t x=0,  answer=0;
+    char response[1000];
+    unsigned long previous;
+ 
+    memset(response, '\0', sizeof(response));    // Initialice the string
+
+    delay(100);
+
+    while( mySerial.available() > 0){
+      mySerial.read();    // Clean the input buffer
+    }
+
+    mySerial.println(ATcommand);    // Send the AT command 
+
+
+        x = 0;
+    previous = millis();
+
+    // this loop waits for the answer
+    do{
+        // if there are data in the UART input buffer, reads it and checks for the asnwer
+        if(mySerial.available() != 0){    
+            response[x] = mySerial.read();
+            x++;
+            // check if the desired answer is in the response of the module
+            if (strstr(response, expected_answer) != NULL)    
+            {
+                answer = 1;
+                
+              //Serial.println(response);
+            }else {
+             /* Serial.print("AT command Answer : ");
+              Serial.println(response);
+              Serial.print("Expected : ");
+             Serial.println(expected_answer);*/
+              
+            }
+        }
+        // Waits for the asnwer with time out
+    }while((answer == 0) && ((millis() - previous) < timeout));
+   /* Serial.println("-------------------");    
+            Serial.print("Answer : ");
+              Serial.println(response);
+               Serial.print("Expected : ");
+              Serial.println(expected_answer);
+              Serial.println("-------------------");    */
+    return answer;
+}
 void blinkLed(int delayTime, int counts){
   for (int i=0;i<counts;i++){
     digitalWrite(LEDSignal, HIGH);
@@ -160,7 +230,7 @@ void checkSpeed( float mySpeed){
  }
 
 void loop(){
-
+//checkIncommingCall();
 loopCounter++;
 if (loopCounter >=10){
   loopCounter = 0;
