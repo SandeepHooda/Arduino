@@ -19,9 +19,32 @@ String phoneNo;
   Serial.begin(9600);    // Setting the baud rate of Serial Monitor (Arduino)
   delay(100);
   Serial.println("Welcome By GateKeeper"); 
-  for (int i=0;i<13;i++){
+ // sendATcommand("AT+CMGD=1,1", "AT+CMGD=1,1", 1000); //Delete all SMS
+ // Serial.println("All SMS deleted"); 
+ /* for (int i=0;i<13;i++){
      epromPhoneNo[i] =  EEPROM.read(i);
+  }*/
+  epromPhoneNoStr = "+919216411835";
+  //waitForIncommingCall();
+  //readMasterPhoneNoFromSMS();
+  
+}
+
+void readMasterPhoneNoFromSMS(){
+ 
+
+  unsigned long waitForCallerID = 120000;
+  while (!incommingIDFound && ( millis() < waitForCallerID )){
+     readLatestSMS();
   }
+
+   if (incommingIDFound){
+    Serial.print("Caller ID  ");
+   
+   
+   }
+}
+void waitForIncommingCall(){
   sendATcommand("AT+CLIP=1", "AT+CLIP=1", 1000);
 
   unsigned long waitForCallerID = 120000;
@@ -56,6 +79,55 @@ String phoneNo;
       
    }
  
+}
+void readLatestSMS() {
+  int8_t answer;
+  char SMS[100];
+  int x;
+String completeSMS ="";
+ answer = sendATcommand("AT+CMGR=1", "AT+CMGR=1", 5000);    // reads the first SMS
+    if (answer == 1)
+    {
+       Serial.println("Reading SMS now"); 
+        answer = 0;
+        while(mySerial.available() == 0);
+        // this loop reads the data of the SMS
+        Serial.println("Reading bytes");
+        do{
+            // if there are data in the UART input buffer, reads it and checks for the asnwer
+            if(mySerial.available() > 0){
+                 
+                SMS[x] = mySerial.read();
+                x++;
+                if (x>=sizeof(SMS)){
+                  completeSMS += SMS;
+                  memset(SMS, '\0', sizeof(SMS));
+                  x=0;
+                }
+                // check if the desired answer (OK) is in the response of the module
+                if (strstr(SMS, "OK") != NULL)    
+                {
+                    answer = 1;
+                    completeSMS += SMS;
+                }
+            }
+            delay(100); 
+        }while(answer == 0);    // Waits for the asnwer with time out
+        
+        //SMS[x] = '\0';
+        
+        Serial.print(completeSMS);  
+           
+        Serial.println("--------End of program--------");  
+        incommingIDFound = true;
+        
+    }
+    else
+    {
+        Serial.print("error ");
+        Serial.println(answer, DEC);
+    }
+
   
 }
 
@@ -188,7 +260,7 @@ void loop(){
     delay(100);
 
     while( mySerial.available() > 0){
-      Serial.println(mySerial.read());    // Clean the input buffer
+      mySerial.read();    // Clean the input buffer
     }
 
     mySerial.println(ATcommand);    // Send the AT command 
@@ -210,10 +282,11 @@ void loop(){
                 
               //Serial.println(response);
             }else {
-             /* Serial.print("AT command Answer : ");
-              Serial.println(response);
-              Serial.print("Expected : ");
-             Serial.println(expected_answer);*/
+             /*  Serial.print("Expected : ");
+             Serial.println(expected_answer);
+             Serial.print("AT command Answer : ");
+              Serial.println(response);*/
+             
               
             }
         }
