@@ -1,10 +1,11 @@
 #include <SoftwareSerial.h>
 #include <EEPROM.h>
 SoftwareSerial mySerial(PD2, PD3);//rx, tx
+SoftwareSerial bluetooth(PD6,PD5 ); // RX, TX  
 
 //2 rx of arduinto -> tx of SIM module
 //3 tx of arduinto -> tx of SIM  module
-char epromPhoneNo[13];
+char epromPhoneNo[10];
 String epromPhoneNoStr = "";
 char callerID_phone_number[13];
 boolean incommingIDFound = false;
@@ -12,19 +13,22 @@ String phoneNo;
   void setup()
 {
   pinMode(PD4, INPUT);
-  pinMode(PD5, OUTPUT);
+  /*pinMode(PD5, OUTPUT);
   pinMode(PD6, OUTPUT);
-  digitalWrite(PD6, LOW);
+  digitalWrite(PD6, LOW);*/
   mySerial.begin(9600);   // Setting the baud rate of GSM Module  
+   bluetooth.begin(9600);
   Serial.begin(9600);    // Setting the baud rate of Serial Monitor (Arduino)
   delay(100);
-  Serial.println("Welcome By GateKeeper"); 
+  Serial.print("Welcome By GateKeeper. I will use phone no "); 
  // sendATcommand("AT+CMGD=1,1", "AT+CMGD=1,1", 1000); //Delete all SMS
  // Serial.println("All SMS deleted"); 
- /* for (int i=0;i<13;i++){
+  for (int i=0;i<10;i++){
      epromPhoneNo[i] =  EEPROM.read(i);
-  }*/
-  epromPhoneNoStr = "+919216411835";
+  }
+   String str(epromPhoneNo);
+    epromPhoneNoStr = str;
+ Serial.println(epromPhoneNoStr);
   //waitForIncommingCall();
   //readMasterPhoneNoFromSMS();
   
@@ -65,12 +69,12 @@ void waitForIncommingCall(){
        for (int i=0;i<13;i++){
          EEPROM.write(i, callerID_phone_number[i]);
        }
-       for (int i =0;i< 5;i++){
+       /*for (int i =0;i< 5;i++){
            digitalWrite(PD5, HIGH);
           delay(500);
           digitalWrite(PD5, LOW);
           delay(500);
-       }
+       }*/
        epromPhoneNoStr = phoneIDString;
        
       }else {
@@ -172,12 +176,37 @@ char received[15];
   
 }
 void loop(){
+  //Check if user wants to upadte phione no in eprom via bluetooth
+   if (bluetooth.available()) {
+    String  c  = bluetooth.readStringUntil('\n');
+    if(c.indexOf("UPDATE") >=0){
+       epromPhoneNoStr = c.substring(c.indexOf("UPDATE")+6);
+      epromPhoneNoStr.trim();
+      if (epromPhoneNoStr.length() > 10){
+         epromPhoneNoStr = epromPhoneNoStr.substring(0,10);
+      }
+     
+      char epromPhoneNoChar[11];
+      epromPhoneNoStr.toCharArray(epromPhoneNoChar, 11) ;
+      for (int i=0;i<10;i++){
+         EEPROM.write(i,epromPhoneNoChar[i]);
+         bluetooth.print(epromPhoneNoChar[i]);
+       }
+       bluetooth.println("Now I will use "+epromPhoneNoStr+" to make a call" );
+    }else {
+       bluetooth.println("I will use "+epromPhoneNoStr+" to make a call" );
+    }
+   }else {
+     //bluetooth.println("I will use "+epromPhoneNoStr+" to make a call" );
+   }
+
+   
   if (digitalRead(PD4)){
     Serial.println("Making a call ");
     Call();
-    digitalWrite(PD5, HIGH);
-    delay(2000);
-    digitalWrite(PD5, LOW);
+    //digitalWrite(PD5, HIGH);
+    //delay(2000);
+    //digitalWrite(PD5, LOW);
     
     
   }
@@ -196,6 +225,8 @@ void loop(){
   Serial.print("Phone No: ");
   if (epromPhoneNoStr.length() >=13){
      phoneNo = epromPhoneNoStr.substring(3);
+  }else if (epromPhoneNoStr.length() ==10 ){
+    phoneNo = epromPhoneNoStr;
   }
  
    Serial.println(phoneNo);
