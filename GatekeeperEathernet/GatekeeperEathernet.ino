@@ -23,7 +23,7 @@ byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 // if you don't want to use DNS (and reduce your sketch size)
 // use the numeric IP instead of the name for the server:
 //IPAddress server(74,125,232,128);  // numeric IP for Google (no DNS)
-char server[] = "192.168.1.6";    // name address for Google (using DNS)
+char server[] = "192.168.225.21";    // name address for IP camera
 char serverHeroku[] = "post-master.herokuapp.com";    // name address for Google (using DNS)
 
 // Set the static IP address to use if the DHCP fails to assign
@@ -111,6 +111,8 @@ delay(600000);
 }
 
 void loop() {
+  //check Gatekeep Server if motion is detected http://192.168.225.32 = 1 then capture loop 
+  //After sending email make EmailSentConfirmation to http://192.168.225.32
   captureLoop();
 }
 
