@@ -203,7 +203,9 @@ void loop(){
    
   if (digitalRead(PD4)){
     Serial.println("Making a call ");
+    //Send Hign on PD1 of ESP8266
     Call();
+    
     //digitalWrite(PD5, HIGH);
     //delay(2000);
     //digitalWrite(PD5, LOW);
