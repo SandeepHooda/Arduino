@@ -12,6 +12,8 @@ boolean incommingIDFound = false;
 String phoneNo;
   void setup()
 {
+  pinMode(PD7,OUTPUT );
+  digitalWrite(PD7, LOW);
   pinMode(PD4, INPUT);
   /*pinMode(PD5, OUTPUT);
   pinMode(PD6, OUTPUT);
@@ -202,15 +204,18 @@ void loop(){
 
    
   if (digitalRead(PD4)){
+    digitalWrite(PD7, HIGH);
     Serial.println("Making a call ");
     //Send Hign on PD1 of ESP8266
     Call();
     
     //digitalWrite(PD5, HIGH);
-    //delay(2000);
+    delay(2000);
     //digitalWrite(PD5, LOW);
     
     
+  }else {
+    digitalWrite(PD7, LOW);
   }
 }
  
