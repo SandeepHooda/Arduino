@@ -9,7 +9,7 @@
 // Replace with your network credentials
 const char* ssid     = "GREEN";
 const char* password = "A0A0A0A0A0";
-IPAddress ip(192, 168, 225, 32);
+IPAddress ip(192, 168, 225, 9);
 IPAddress gateway(192, 168, 255, 1); // set gateway to match your network
 IPAddress subnet(255, 255, 255, 0); // set subnet mask to match your network
 // Set web server port number to 80
