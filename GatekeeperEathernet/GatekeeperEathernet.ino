@@ -1,18 +1,4 @@
-/*
-  Web client
 
-  This sketch connects to a website (http://www.google.com)
-  using an Arduino Wiznet Ethernet shield.
-
-  Circuit:
-   Ethernet shield attached to pins 10, 11, 12, 13
-
-  created 18 Dec 2009
-  by David A. Mellis
-  modified 9 Apr 2012
-  by Tom Igoe, based on work by Adrian McEwen
-
-*/
 
 #include <SPI.h>
 #include <Ethernet.h>
@@ -135,7 +121,7 @@ void connectToCamera(){
     Serial.println("Not able to connect to foscam connection failed");
      client.stop();
     clientEmail.stop();
-    delay(5000);
+    delay(1000);
     emailSent = true;
   }
 }
