@@ -27,6 +27,7 @@ boolean emailSent = false;
 
 int pos = 0;
 void setup() {
+  //delay(120000);
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {

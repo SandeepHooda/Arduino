@@ -73,6 +73,7 @@ pinMode(LEDSignal , OUTPUT);
 
   ss.begin(9600);
   blinkLed(1000, 2);
+  digitalWrite(LEDSignal, HIGH);
 
    mySerial.println("ATD9216411835;"); // AT Command to make a call
     delay(5000);
@@ -208,7 +209,7 @@ void checkSpeed( float mySpeed){
   
   if (mySpeed >  speedLimit){
       Serial.println(mySpeed);
-      blinkLed(100, 50);
+      blinkLed(100, 10);
    }
 }
 
