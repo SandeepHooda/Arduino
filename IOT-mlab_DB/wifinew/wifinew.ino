@@ -42,7 +42,7 @@ void setup() {
         delay(1000);
     }
 
-    WiFiMulti.addAP("GREEN", "A0A0A0A0A0");
+    WiFiMulti.addAP("Sandeep", "1234567890");
 
 }
 

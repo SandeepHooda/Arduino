@@ -1,13 +1,13 @@
 #include <NewPing.h>
 
-#define PIR1_TRIGGER_PIN  PD5
-#define PIR1_ECHO_PIN  PD6  
-#define PIR2_TRIGGER_PIN  PD7
-#define PIR2_ECHO_PIN  PD8 
-#define relay  PD2 
+#define PIR1_TRIGGER_PIN  2
+#define PIR1_ECHO_PIN  3  
+#define PIR2_TRIGGER_PIN  4
+#define PIR2_ECHO_PIN  5 
+#define relay  6 
 int pirState = LOW;             // we start, assuming no motion detected
 int switchOn = 0; 
-String distance = "";
+long distance = 0;
 #define MAX_DISTANCE 200
  
 NewPing sonar(PIR1_TRIGGER_PIN, PIR1_ECHO_PIN, MAX_DISTANCE);
@@ -18,19 +18,34 @@ NewPing sonar2(PIR2_TRIGGER_PIN, PIR2_ECHO_PIN, MAX_DISTANCE);
 
   pinMode(relay,OUTPUT );
   digitalWrite(relay, HIGH);//Off
-  Serial.print("Welcome  ");
+  Serial.println("Welcome  ");
 }
 void loop(){
-  delay(50);
+ //if (switchOn <= 0){
+delay(50);
 distance = sonar.ping_cm();
-if (distance != "0"){
+if (distance > 10){
+  Serial.print("Signal 1 ");
+  Serial.println(distance);
   delay(50);
   distance = sonar.ping_cm();
-  if (distance != "0"){
-      switchOn = 60;//Seconds
+  if (distance > 10){
+    Serial.print("Signal 2 ");
+  Serial.println(distance);
+  switchOn = 5;//Seconds
+      /*delay(200);
+      distance = sonar.ping_cm();
+      if (distance > 10){
+        Serial.print("Signal 3 ");
+  Serial.println(distance);
+          switchOn = 5;//Seconds
+         
+      }*/
+    
+      
      
   }
-}else{ //check sonar2 
+}/*else{ //check sonar2 
     distance = sonar2.ping_cm();
     if (distance != "0"){
       delay(50);
@@ -40,7 +55,10 @@ if (distance != "0"){
          
       }
     } 
-}
+}*/
+
+//}
+  
  
   
    
@@ -49,8 +67,10 @@ if (distance != "0"){
     digitalWrite(relay, LOW);//On
     switchOn--;
     delay(1000);
+    
   }else {
     digitalWrite(relay, HIGH);//Off
+    
   }
 
   

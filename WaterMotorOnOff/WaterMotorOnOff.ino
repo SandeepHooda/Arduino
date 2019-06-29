@@ -2,28 +2,28 @@
 
 #define led 2
 #define motorSignalFull 9
-#define motorSignalEmpty 8
 #define relay 7
-#define waterSourceAvailableIP 11
-#define waterSourceAvailableOP 10
+//#define motorSignalEmpty 8
+//#define waterSourceAvailableIP 11
+//#define waterSourceAvailableOP 10
 
 boolean tankFull = false;
-boolean tankEmpty = false;
-boolean checkingTankEmpty = false;
+//boolean tankEmpty = false;
+//boolean checkingTankEmpty = false;
 
 void setup() {
   Serial.begin(9600);
-  pinMode(waterSourceAvailableIP, INPUT);
-  pinMode(waterSourceAvailableOP, OUTPUT);
+  //pinMode(waterSourceAvailableIP, INPUT);
+  //pinMode(waterSourceAvailableOP, OUTPUT);
   pinMode(motorSignalFull, INPUT);
-  pinMode(motorSignalEmpty, INPUT);
+  //pinMode(motorSignalEmpty, INPUT);
   pinMode(relay, OUTPUT);
   pinMode(led, OUTPUT);
 
- digitalWrite(waterSourceAvailableOP, HIGH);
+ //digitalWrite(waterSourceAvailableOP, HIGH);
  
   turnOnMotor();
-  delay(200);
+  delay(2000);
 
 }
 
@@ -33,47 +33,48 @@ void turnOnMotor(){
    tankFull = false;
 }
 
-void turnOffMotor(int delayTime){
-    digitalWrite(led, HIGH);
-    delay(delayTime);
-    digitalWrite(led, LOW);
-    delay(delayTime);
-    digitalWrite(relay, LOW);
+void turnOffMotor(){
+   digitalWrite(relay, LOW);
 }
 
 void loop() {
+  
 
-  if (!digitalRead(waterSourceAvailableIP)){
-   turnOffMotor(100);//Water at source is not available
+  /*if (!digitalRead(waterSourceAvailableIP)){// it is put on high via jumper wire
+   turnOffMotor(100);//Source water tank is empty 
     return;
   }else {
     digitalWrite(led, HIGH);
-  }
-  if (digitalRead(motorSignalEmpty)){
+  }*/
+ /* if (digitalRead(motorSignalEmpty)){
     //At any point if we find high on motorSignalEmpty that means that empty signal is also being monitored
      checkingTankEmpty = true;
-  }
+  }*/
   if (tankFull){
-     turnOffMotor(500);
-     if (checkingTankEmpty && !digitalRead(motorSignalEmpty)){
+    blinkLED();
+     turnOffMotor();
+     return;
+    /* if (checkingTankEmpty && !digitalRead(motorSignalEmpty)){
         turnOnMotor();
-     }
+     }*/
   }
   if (digitalRead(motorSignalFull)){
-    for (int i=0;i<10;i++){
+    delay(10000);//10 seconds
+   /* for (int i=0;i<10;i++){
       if (digitalRead(motorSignalFull)){
          blinkLED();// 1 sec delay
       }else {
         break;
       }
       
-    }
+    }*/
     if (digitalRead(motorSignalFull)){
       tankFull = true;
+      turnOffMotor();
     }
      
    }
- 
+ delay(1000);
 }
 
 void blinkLED(){

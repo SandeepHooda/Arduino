@@ -9,13 +9,12 @@ int8_t answer;
 
 //GPS
 TinyGPS gps;
-SoftwareSerial ss(4, 3);//rx ( of ard, ), tx ( of ard)
+SoftwareSerial ss(10,11);//rx ( of ard, ), tx ( of ard)
 
 #define locationUpdate 7 //Blue
 #define emergencySwitch 2 //Black
-#define LEDSignal 8 
+#define LEDSignal 13 
 
-boolean carLocationSenttoMe = false;
 
 static void smartdelay(unsigned long ms);
 static void print_float(float val, float invalid, int len, int prec);
@@ -23,37 +22,17 @@ static void print_int(unsigned long val, unsigned long invalid, int len);
 static void print_date(TinyGPS &gps);
 static void print_str(const char *str, int len);
 
-#define contactsLen 3
-char* myContacts[contactsLen]={"9316046895","7837394152","9216411835"}; 
-
-#define emergencyContactsLen 3
-char* emergencyContacts[emergencyContactsLen]={"9316046895","7837394152","9216411835"}; 
+#define contactsLen 1
+char* myContacts[contactsLen]={"9216411835"}; 
 
 //Locations
-#define locationCount 3
-double myLocationsLat[locationCount]={ 30.7275903,30.667516,30.667313};
-double myLocationsLon[locationCount]={ 76.8446617, 76.885818, 76.862419}; 
-char* locationNames[]={"Infosys","Home", "Gurukul"}; 
 float flat, flon;
-long distance ;
-long nearestKnownLocationDistanceInit = 10000;
-long nearestKnownLocationDistance = nearestKnownLocationDistanceInit;
-String nearestKnownLocation = "";
-String currentLoc = "UNKNOWN";
-String lastLoc = "UNKNOWN" ;
-String unknownLoc = "UNKNOWN";
-boolean gpsGotLocation = false;
-unsigned long smsSentTime;
-int smsfrequencyMin = 30;
-long safeZone = 300;
-long farAwarDistance = 1000;
 
+boolean gpsGotLocation = false;
 
 int loopCounter = 0;
 
-
 float mySpeed = 0;
-
 char SMS_INPUT[100];
 int x;
 String completeSMS ="";
@@ -66,37 +45,22 @@ pinMode(locationUpdate , INPUT);
 pinMode(emergencySwitch , INPUT);
 pinMode(LEDSignal , OUTPUT);
   
-  mySerial.begin(9600);   // Setting the baud rate of GSM Module  
-  Serial.begin(115200);    // Setting the baud rate of Serial Monitor (Arduino)
-  delay(100);
-  Serial.println("Welcome ");
+mySerial.begin(9600);   // Setting the baud rate of GSM Module  
+Serial.begin(115200);    // Setting the baud rate of Serial Monitor (Arduino)
 
-  ss.begin(9600);
-  blinkLed(1000, 2);
-  digitalWrite(LEDSignal, HIGH);
+Serial.println("Welcome");
 
-   mySerial.println("ATD9216411835;"); // AT Command to make a call
-    delay(5000);
-    mySerial.println("ATD9216411835;"); // AT Command to make a call
-    delay(5000);
+ ss.begin(9600);
+ blinkLed(1000, 2);
+ digitalWrite(LEDSignal, HIGH);
+ mySerial.println("ATD9216411835;"); // AT Command to make a call
+ delay(5000);
+ mySerial.println("ATD9216411835;"); // AT Command to make a call
+ delay(5000);
   
-
 }
 
-void checkIncommingCall() {
-  int8_t answer;
 
-  //program is allways waiting for a +CLIP to confirm a call was received
-  //it will receive a +CLIP command for every ring the calling phone does
-  while (answer = sendATcommand("ID", "+CLIP:", 2000)) {
-    //answer is 1 if sendATcommand detects +CLIP
-    if (answer == 1)
-    {
-      getMeNearestLocation();//Send location updates on incomming call
-      preapreSms("My Location is "+nearestKnownLocation, false);
-    }
-}
-}
  int8_t sendATcommand(char* ATcommand, char* expected_answer, unsigned int timeout){
 
     uint8_t x=0,  answer=0;
@@ -112,7 +76,6 @@ void checkIncommingCall() {
     }
 
     mySerial.println(ATcommand);    // Send the AT command 
-
 
         x = 0;
     previous = millis();
@@ -159,54 +122,17 @@ void blinkLed(int delayTime, int counts){
 
 
 void preapreSms(String msg, boolean isEmergency){
-          msg += " https://www.google.com/maps/place/@";
-          msg += String(flat,6);
-          msg += ",";
-          msg += String(flon,6);
-          msg += ",16z";
-          Serial.println(msg);
-          if (isEmergency){
-            for (int i=0; i<emergencyContactsLen;i++){
-              SendMessage(msg, emergencyContacts[i]);
-            }
-          }else {
-            for (int i=0; i<contactsLen;i++){
+          msg += " https://www.google.com/maps/place/@" + String(flat,6) + "," + String(flon,6) + ",16z";
+           for (int i=0; i<contactsLen;i++){
               SendMessage(msg, myContacts[i]);
             }
-          }
-          
-          smsSentTime = millis();
-          
-          Serial.println("SMS sent");
 }
 
 
-void getMeNearestLocation(){
-  nearestKnownLocationDistance = nearestKnownLocationDistanceInit; //Rest this value
-  nearestKnownLocation = "";
-  for(int i=0;i<locationCount;i++){
-           distance = (unsigned long)TinyGPS::distance_between(flat, flon, myLocationsLat[i], myLocationsLon[i]);
-          
-          if (distance < nearestKnownLocationDistance){
-            nearestKnownLocationDistance = distance;
-            nearestKnownLocation = locationNames[i];
-          }
-          if (distance <= safeZone ){
-            currentLoc = locationNames[i];
-            break;
-          }else {
-            currentLoc = unknownLoc;
-          }
-        } //Loop thru all the known locatios End
-  
-}
+
 
 void checkSpeed( float mySpeed){
-  float speedLimit = 60;
-  if (nearestKnownLocationDistance >= nearestKnownLocationDistanceInit){
-    speedLimit = 100;
-  }
-  
+  float speedLimit = 60; 
   if (mySpeed >  speedLimit){
       Serial.println(mySpeed);
       blinkLed(100, 10);
@@ -215,14 +141,14 @@ void checkSpeed( float mySpeed){
 
  void CallEmergency()
 {
-  for (int i=0; i<emergencyContactsLen;i++){
-      String callNo = emergencyContacts[i];   
+  for (int i=0; i<contactsLen;i++){
+      String callNo = myContacts[i];   
       callNo = "ATD"+callNo+";" ;
       Serial.println(callNo);
        mySerial.println(callNo); // AT Command to make a call
        delay(60000);
        mySerial.println("ATH;"); // AT Command to disconnectl
-       
+       delay(1000);
    }
  
  delay(1000);
@@ -231,58 +157,36 @@ void checkSpeed( float mySpeed){
  }
 
 void loop(){
-//checkIncommingCall();
 loopCounter++;
 if (loopCounter >=10){
   loopCounter = 0;
 }
 
- if (digitalRead(emergencySwitch)){
- Serial.println("Emergency ");
-  blinkLed(100, 20);
-  getMeNearestLocation();
-   preapreSms("I am in danger. I am at "+nearestKnownLocation, true);
-   CallEmergency();
-   delay(60000);
- }
+ 
 
  if (digitalRead(locationUpdate)){
   Serial.println("Location Update ");
   blinkLed(1000, 2);
-  getMeNearestLocation();
-   preapreSms("My Location is "+nearestKnownLocation, false);
-   delay(60000);
+  preapreSms("My Location is ", false);
+  
+ }else if (digitalRead(emergencySwitch)){
+ Serial.println("Emergency ");
+  blinkLed(100, 20);
+
+   preapreSms("I am in danger. I am at ", true);
+   CallEmergency();
+   
  }
 
  if (loopCounter == 1){//Don't check GPS each time so that push button can be detected
+  Serial.println("Getting GSP  ");
     loopForGPS();
   if (flat != TinyGPS::GPS_INVALID_F_ANGLE){
     digitalWrite(LEDSignal, HIGH);
     checkSpeed(mySpeed);
-    if (!carLocationSenttoMe){
-      carLocationSenttoMe = true;
-       getMeNearestLocation();
-      //SendMessage("Car started "+nearestKnownLocation, "9216411835");
-    }
-   
-    print_float(mySpeed, 0, 10, 3);
-   
-     Serial.println("---Location -- ");
-        print_float(flat,0,10,6);
-        Serial.print(" ");
-        print_float(flon,0,10,6);
-        Serial.println(" ");
-        Serial.println("---End-- ");
-        
-        getMeNearestLocation();
-   
-     
-        lastLoc = currentLoc;
-      
-    
   }else {
     digitalWrite(LEDSignal, LOW);
-    Serial.println("GPS didn't get location yet");
+    
   }
  }
   
@@ -315,16 +219,6 @@ delay(5000);
  
 
 
-void setupGPS()
-{
-
-  Serial.println (TinyGPS::library_version());
-  Serial.println("by Mikal Hart");
-  Serial.println();
-  Serial.println("Sats HDOP Latitude  Longitude  Fix  Date       Time     Date Alt    Course Speed Card  Distance Course Card  Chars Sentences Checksum");
-  Serial.println("          (deg)     (deg)      Age                      Age  (m)    --- from GPS ----  ---- to London  ----  RX    RX        Fail");
-  Serial.println("-------------------------------------------------------------------------------------------------------------------------------------"); 
-}
 
 
 void loopForGPS()
