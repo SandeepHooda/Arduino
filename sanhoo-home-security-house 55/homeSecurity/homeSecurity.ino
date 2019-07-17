@@ -11,6 +11,7 @@ String updateIpAddress = "http://sanhoo-home-security.appspot.com/MyExternalIP?i
 const char* getMyIPUrl = "http://api.ipify.org/?format=json";
 String updateHealthUrl = "http://sanhoo-home-security.appspot.com/IamAlive?id=";
 long ipUpdateTime = 0;
+long healthUpdateTime = 0;
 #define FF_Gallary D5
 #define FF_Stairs D6
 
@@ -88,18 +89,23 @@ void setup () {
 }
 
 void updateHealth(String url){
-    HTTPClient http;  //Declare an object of class HTTPClient 
+  if (!onAlarmMode){
+        if ( (millis() - healthUpdateTime ) <60000) {//Reduce number of health updates if not in alarm mode
+          return;
+        }
+   }
+   HTTPClient http;  //Declare an object of class HTTPClient 
     http.begin(url);  //Specify request destination
     int httpCode = http.GET();      
                                                                  
     if (httpCode > 0) { //Check the returning code
       String payload = http.getString();   //Get the request response payload
       //Serial.println(payload);  
-      
+      healthUpdateTime = millis();
     }
      
     http.end();   //Close connection 
-    delay(200);  
+    delay(1000);   
 }
 
 
@@ -135,9 +141,7 @@ void loop() {
         Serial.println(alarm);
         updateHealth(updateHealthUrl+"2&alarmTriggered="+alarm);
 
-        if (!onAlarmMode){
-           delay(3000);  
-        }
+        
         
     }else {
       ipUpdateRequired = true;
