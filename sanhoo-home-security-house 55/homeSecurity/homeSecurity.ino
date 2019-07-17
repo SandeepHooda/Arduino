@@ -12,8 +12,11 @@ const char* getMyIPUrl = "http://api.ipify.org/?format=json";
 String updateHealthUrl = "http://sanhoo-home-security.appspot.com/IamAlive?id=";
 long ipUpdateTime = 0;
 long healthUpdateTime = 0;
+boolean lastUpdateSentWithAlarmMode = false;
 #define FF_Gallary D5
 #define FF_Stairs D6
+int httpCode_D1 = 0;
+int httpCode_D2 = 0;
 
 boolean onAlarmMode = false;
 
@@ -88,10 +91,10 @@ void setup () {
     pinMode(FF_Stairs, INPUT);    
 }
 
-void updateHealth(String url){
-  if (!onAlarmMode){
+int updateHealth(String url){
+  if (!onAlarmMode && !lastUpdateSentWithAlarmMode){
         if ( (millis() - healthUpdateTime ) <60000) {//Reduce number of health updates if not in alarm mode
-          return;
+          return -1;
         }
    }
    HTTPClient http;  //Declare an object of class HTTPClient 
@@ -99,13 +102,13 @@ void updateHealth(String url){
     int httpCode = http.GET();      
                                                                  
     if (httpCode > 0) { //Check the returning code
-      String payload = http.getString();   //Get the request response payload
+      //String payload = http.getString();   //Get the request response payload
       //Serial.println(payload);  
-      healthUpdateTime = millis();
     }
      
     http.end();   //Close connection 
-    delay(1000);   
+    delay(1000); 
+    return  httpCode; 
 }
 
 
@@ -121,26 +124,36 @@ void loop() {
     if (WiFi.status() == WL_CONNECTED) { //Check WiFi connection status
         String alarm = "Y";
         onAlarmMode = false;
+        if (!digitalRead(FF_Gallary) || !digitalRead(FF_Stairs)){
+           onAlarmMode = true;
+        }
         if (digitalRead(FF_Gallary)){
           alarm = "N";
         }else {
           alarm = "Y";
-          onAlarmMode = true;
         }
         Serial.print("Door 1 alarm : ");
         Serial.println(alarm);
-        updateHealth(updateHealthUrl+"1&alarmTriggered="+alarm);
+       httpCode_D1 = updateHealth(updateHealthUrl+"1&alarmTriggered="+alarm);
 
         if (digitalRead(FF_Stairs)){
           alarm = "N";
         }else {
           alarm = "Y";
-           onAlarmMode = true;
-        }
+       }
         Serial.print("Door 2 alarm : ");
         Serial.println(alarm);
-        updateHealth(updateHealthUrl+"2&alarmTriggered="+alarm);
+        httpCode_D2 = updateHealth(updateHealthUrl+"2&alarmTriggered="+alarm);
 
+        if (onAlarmMode){//Last updates sent on alarm mode successfully
+          lastUpdateSentWithAlarmMode = true;
+        }else {
+          lastUpdateSentWithAlarmMode = false;
+        }
+
+        if (httpCode_D1 > 0  && httpCode_D2 > 0){
+          healthUpdateTime = millis();
+        }
         
         
     }else {
