@@ -3,8 +3,8 @@
 #include <ArduinoJson.h>
 
 StaticJsonBuffer<200> jsonBuffer;
-const char* ssid = "GREEN_2.4";
-const char* password = "A0A0A0A0A0";
+const char* ssid = "GOGREEN"; //"GREEN_2.4" //"GOGREEN"
+const char* password = "F1F1F1F1F1"; //"A0A0A0A0A0" //"F1F1F1F1F1"
 boolean ipUpdateRequired = true;
 String  myExternalIPaddress = "";
 String updateIpAddress = "http://sanhoo-home-security.appspot.com/MyExternalIP?ip=";
@@ -14,9 +14,9 @@ long ipUpdateTime = 0;
 long healthUpdateTime = 0;
 boolean lastUpdateSentWithAlarmMode = false;
 #define FF_Gallary D5
-#define FF_Stairs D6
+//#define FF_Stairs D6
 int httpCode_D1 = 0;
-int httpCode_D2 = 0;
+//int httpCode_D2 = 0;
 
 boolean onAlarmMode = false;
 
@@ -88,7 +88,7 @@ void setup () {
     Serial.println(WiFi.localIP());  //IP address assigned to your ESP
 
     pinMode(FF_Gallary, INPUT);    
-    pinMode(FF_Stairs, INPUT);    
+    //pinMode(FF_Stairs, INPUT);    
 }
 
 int updateHealth(String url){
@@ -124,7 +124,7 @@ void loop() {
     if (WiFi.status() == WL_CONNECTED) { //Check WiFi connection status
         String alarm = "Y";
         onAlarmMode = false;
-        if (!digitalRead(FF_Gallary) || !digitalRead(FF_Stairs)){
+        if (!digitalRead(FF_Gallary) /*|| !digitalRead(FF_Stairs)*/){
            onAlarmMode = true;
         }
         if (digitalRead(FF_Gallary)){
@@ -134,9 +134,9 @@ void loop() {
         }
         Serial.print("Door 1 alarm : ");
         Serial.println(alarm);
-       httpCode_D1 = updateHealth(updateHealthUrl+"1&alarmTriggered="+alarm);
+       httpCode_D1 = updateHealth(updateHealthUrl+"4&alarmTriggered="+alarm);
 
-        if (digitalRead(FF_Stairs)){
+      /*  if (digitalRead(FF_Stairs)){
           alarm = "N";
         }else {
           alarm = "Y";
@@ -144,14 +144,14 @@ void loop() {
         Serial.print("Door 2 alarm : ");
         Serial.println(alarm);
         httpCode_D2 = updateHealth(updateHealthUrl+"2&alarmTriggered="+alarm);
-
+*/
         if (onAlarmMode){//Last updates sent on alarm mode successfully
           lastUpdateSentWithAlarmMode = true;
         }else {
           lastUpdateSentWithAlarmMode = false;
         }
 
-        if (httpCode_D1 > 0  && httpCode_D2 > 0){
+        if (httpCode_D1 > 0  /*&& httpCode_D2 > 0*/){
           healthUpdateTime = millis();
         }
         
