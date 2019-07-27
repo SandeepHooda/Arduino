@@ -93,7 +93,9 @@ void setup () {
 
 int updateHealth(String url){
   if (!onAlarmMode && !lastUpdateSentWithAlarmMode){
-        if ( (millis() - healthUpdateTime ) <60000) {//Reduce number of health updates if not in alarm mode
+        if ( (millis() - healthUpdateTime ) <5000) {//Reduce number of health updates if not in alarm mode. Health check monitor script from google drives every minute 
+                                                    //( and sleeps 2 times in a minutes)
+                                                    //Consider few updates might got miss due to environmental issues so don't send too less updates
           return -1;
         }
    }
