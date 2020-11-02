@@ -7,9 +7,9 @@ const char* ssid = "GOGREEN"; //"GREEN_2.4" //"GOGREEN"
 const char* password = "F1F1F1F1F1"; //"A0A0A0A0A0" //"F1F1F1F1F1"
 boolean ipUpdateRequired = true;
 String  myExternalIPaddress = "";
-String updateIpAddress = "http://sanhoo-home-security.appspot.com/MyExternalIP?ip=";
+String updateIpAddress = "http://idonotremember-app.appspot.com/MyExternalIP?ip=";
 const char* getMyIPUrl = "http://api.ipify.org/?format=json";
-String updateHealthUrl = "http://sanhoo-home-security.appspot.com/IamAlive?id=";
+String updateHealthUrl = "http://idonotremember-app.appspot.com/IamAlive?id=";
 long ipUpdateTime = 0;
 long healthUpdateTime = 0;
 boolean lastUpdateSentWithAlarmMode = false;
