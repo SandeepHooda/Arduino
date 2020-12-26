@@ -2,10 +2,9 @@
 #define motion_sensor  D0
 #define light_sensor  A0
 #define relay_control  D5
-int tenMinutes = 10*60*1000;
-int oneMinutes = 60*1000;
+
 int halfMinute = 30*1000;
-int threeMinutes = 3*60*1000;
+
 int second = 1000;
 int monitoringTimer = 0;
 void setup(){
@@ -20,7 +19,7 @@ void setup(){
   Serial.begin(9600); 
    delay(200);
   Serial.println("Welcome"); 
-  delay(oneMinutes);
+  delay(60000);
   Serial.println("let us start"); 
 }
 
@@ -61,6 +60,9 @@ void loop (){
         delay(second);
          if (isMotion()){// motion yes 
           monitoringTimer = halfMinute; 
+         }
+         if (!isNight()){//Some one switched on the 20W main bulb
+          monitoringTimer =0;
          }
       }
    }else {//Night no
