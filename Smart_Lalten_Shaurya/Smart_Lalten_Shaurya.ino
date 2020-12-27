@@ -3,7 +3,7 @@
 #define light_sensor  A0
 #define relay_control  D5
 
-int halfMinute = 30*1000;
+int oneMinute = 60*1000;
 
 int second = 1000;
 int monitoringTimer = 0;
@@ -35,9 +35,9 @@ boolean isMotion(){
 }
 boolean isNight(){
  int  lightIntensity =  analogRead(light_sensor);
- //Serial.print("Light intensity ");
- //Serial.println(lightIntensity); 
- if (lightIntensity < 40){
+ Serial.print("Light intensity ");
+ Serial.println(lightIntensity); 
+ if (lightIntensity < 200){
     return true;
   }else {
     return false;
@@ -51,19 +51,18 @@ void loop (){
   //Serial.println("There is motion");   
   if  ( isNight()   )   {//Night yes
       digitalWrite (relay_control,HIGH);
-      monitoringTimer = halfMinute;//Monitor timer 
+      monitoringTimer = oneMinute;//Monitor timer 
       while(monitoringTimer >0 ){//runs for N minutes and sencr motion withinh this period
         // isNight();
         monitoringTimer = monitoringTimer -second;
         //Serial.print("Timer left ");
          //Serial.println(monitoringTimer);
         delay(second);
+        
          if (isMotion()){// motion yes 
-          monitoringTimer = halfMinute; 
+          monitoringTimer = oneMinute; 
          }
-         if (!isNight()){//Some one switched on the 20W main bulb
-          monitoringTimer =0;
-         }
+         
       }
    }else {//Night no
      digitalWrite (relay_control,LOW);
