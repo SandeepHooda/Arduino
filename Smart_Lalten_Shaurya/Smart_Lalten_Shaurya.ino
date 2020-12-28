@@ -8,6 +8,8 @@ int oneMinute = 60*1000;
 
 int second = 1000;
 int monitoringTimer = 0;
+int  lightIntensity =0;
+int motionSensor_var;
 
 // Web Server specific code
 const char* ssid     = "GREEN_2.4";
@@ -18,6 +20,7 @@ WiFiServer server(80);
 String header;
 // Auxiliar variables to store the current output state
 String smartMode = "on";
+String forceMode = "on";
 // Current time
 unsigned long currentTime = millis();
 // Previous time
@@ -67,7 +70,7 @@ void setup(){
 }
 
 boolean isMotion(){
-  int motionSensor_var = digitalRead(motion_sensor);
+   motionSensor_var = digitalRead(motion_sensor);
   //Serial.print("IS motion ");
  //Serial.println(motionSensor_var); 
   if (motionSensor_var == HIGH){
@@ -77,10 +80,10 @@ boolean isMotion(){
   }
 }
 boolean isNight(){
- int  lightIntensity =  analogRead(light_sensor);
+ lightIntensity =  analogRead(light_sensor);
  //Serial.print("Light intensity ");
  //Serial.println(lightIntensity); 
- if (lightIntensity < 200){
+ if (lightIntensity < 300){
     return true;
   }else {
     return false;
@@ -118,6 +121,10 @@ void runWebServer(){
              smartMode = "on";
             } else if (header.indexOf("GET /smartMode/off") >= 0) {
              smartMode = "off";
+            }else if (header.indexOf("GET /forceMode/on") >= 0) {
+             forceMode = "on";
+            } else if (header.indexOf("GET /forceMode/off") >= 0) {
+             forceMode = "off";
             }
             
             // Display the HTML web page
@@ -134,11 +141,22 @@ void runWebServer(){
             // Web Page Heading
             client.println("<body><h1>Shaurya's Smart lantern</h1>");
             
-            // Display current state, and ON/OFF buttons for GPIO 5  
+            
+            
+            isNight();
+            isMotion();
+           client.println("<p>lightIntensity " + String(lightIntensity)+ "." +String(random(300))+ "</p>");
+            client.println("<p>Motion " + String(motionSensor_var) + "</p>");
             client.println("<p>Smart Mode " + smartMode + "</p>");
             // If the output5State is off, it displays the ON button       
             if (smartMode=="off") {
               client.println("<p><a href=\"/smartMode/on\"><button class=\"button\">ON</button></a></p>");
+               client.println("<p>Manual Mode " + forceMode + "</p>");
+              if (forceMode == "off"){
+                client.println("<p><a href=\"/forceMode/on\"><button class=\"button\">ON</button></a></p>");
+              }else {
+                client.println("<p><a href=\"/forceMode/off\"><button class=\"button\">OFF</button></a></p>");
+              }
             } else {
               client.println("<p><a href=\"/smartMode/off\"><button class=\"button button2\">OFF</button></a></p>");
             } 
@@ -199,7 +217,12 @@ if (smartMode=="on") {
       }
   
 }else {
-  digitalWrite (relay_control,LOW);//Smart mode off
+  if (forceMode =="on"){
+     digitalWrite (relay_control,HIGH);//Smart mode off
+  }else {
+     digitalWrite (relay_control,LOW);//Smart mode off
+  }
+ 
 }
   
   
