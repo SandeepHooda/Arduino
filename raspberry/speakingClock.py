@@ -18,10 +18,11 @@ already_pressed = False
 print("time speak clock")
 #subprocess.run(["espeak" , "clock"])
 def downLoadWavFile(filePath):
+    smartLantern = requests.get("http://192.168.0.199/toggle", allow_redirects=True)
     r = requests.get(filePath, allow_redirects=True)
     open('/home/pi/speaking_clock/time.mp3', 'wb').write(r.content)
     subprocess.run(["omxplayer", "/home/pi/speaking_clock/time.mp3"])
-    time.sleep(5)
+    time.sleep(2)
     #os.remove("/home/pi/speaking_clock/time.mp3")
 def speakTime():
     if os.path.exists('/home/pi/speaking_clock/time.mp3'): # clear any old file

@@ -125,6 +125,12 @@ void runWebServer(){
              forceMode = "on";
             } else if (header.indexOf("GET /forceMode/off") >= 0) {
              forceMode = "off";
+            }else if (header.indexOf("GET /toggle") >= 0) {
+                   if (forceMode == "on") {
+                    forceMode = "off";
+                   }else {
+                    forceMode = "on";
+                   }
             }
             
             // Display the HTML web page
