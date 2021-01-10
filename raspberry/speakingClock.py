@@ -16,6 +16,8 @@ pad.direction = Direction.INPUT
 
 already_pressed = False
 print("time speak clock")
+touchCount = 0;
+firstTouchTime = 0;
 #subprocess.run(["espeak" , "clock"])
 def downLoadWavFile(filePath):
     smartLantern = requests.get("http://192.168.0.199/toggle", allow_redirects=True)
@@ -36,6 +38,16 @@ def speakTime():
 while True:
 
     if pad.value and not already_pressed:
+        touchCount += 1;
+        print ("touch count ", touchCount)
+        if ( time.time() - firstTouchTime ) > 30 : # time out so reset the first touch time to now
+           touchCount = 1;
+           firstTouchTime = time.time()
+
+        if touchCount >= 3 : #touched three times in 15 seconds. This is command for shutdown
+            downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=You touched me three times in 30 seconds. It is annoying. I am going away.&tl=en");
+            time.sleep(2)
+            os.system("sudo shutdown -h now")
         speakTime();
 
     already_pressed = pad.value
