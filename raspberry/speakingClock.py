@@ -20,20 +20,23 @@ touchCount = 0;
 firstTouchTime = 0;
 #subprocess.run(["espeak" , "clock"])
 def downLoadWavFile(filePath):
-    smartLantern = requests.get("http://192.168.0.199/toggle", allow_redirects=True)
-    r = requests.get(filePath, allow_redirects=True)
-    open('/home/pi/speaking_clock/time.mp3', 'wb').write(r.content)
-    subprocess.run(["omxplayer", "/home/pi/speaking_clock/time.mp3"])
-    time.sleep(2)
-    #os.remove("/home/pi/speaking_clock/time.mp3")
+    #smartLantern = requests.get("http://192.168.0.199/toggle", allow_redirects=True)
+    r = requests.get(filePath, allow_redirects=True) 
+    open('/home/pi/pythonwork/speakingClock/time.mp3', 'wb').write(r.content)
+    subprocess.run(["omxplayer", "/home/pi/pythonwork/speakingClock/time.mp3"])
+    time.sleep(3)
 def speakTime():
-    if os.path.exists('/home/pi/speaking_clock/time.mp3'): # clear any old file
-       os.remove("/home/pi/speaking_clock/time.mp3")
+    if os.path.exists('/home/pi/pythonwork/speakingClock/time.mp3'): # clear any old file
+       os.remove("/home/pi/pythonwork/speakingClock/time.mp3")
     localtime = time.localtime()
     localtime = time.strftime("%I:%M %p", localtime)
     print(localtime)
     #subprocess.run(["espeak" , localtime])
-    downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q="+localtime+"&tl=en");
+    try:
+       downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q="+localtime+"&tl=en") 
+    except (requests.ConnectionError, requests.Timeout) as exception: 
+       subprocess.run(["espeak" , localtime])
+    
 
 while True:
 
@@ -44,10 +47,10 @@ while True:
            touchCount = 1;
            firstTouchTime = time.time()
 
-        if touchCount >= 3 : #touched three times in 15 seconds. This is command for shutdown
+        if touchCount >= 3 : #touched three times in 15 seconds. This is command for shutdown 
             downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=You touched me three times in 30 seconds. It is annoying. I am going away.&tl=en");
             time.sleep(2)
-            os.system("sudo shutdown -h now")
+            os.system("sudo shutdown -h now") 
         speakTime();
 
     already_pressed = pad.value

@@ -1,1 +1,1 @@
-*/1 * * * * /home/pi/speaking_clock/runClock.sh start >>  /home/pi/speaking_clock/cronLog.txt 2>&1
+*/1 * * * * /home/pi/pythonwork/speakingClock/runClock.sh start >>  /home/pi/pythonwork/speakingClock/cronLog.txt 2>&1

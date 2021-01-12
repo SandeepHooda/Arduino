@@ -4,7 +4,7 @@
 # Add the following command to the /etc/rc.local
 # /home/pi/speaking_clock/runClock.sh start
 
-progpath="/home/pi/speaking_clock"
+progpath="/home/pi/pythonwork/speakingClock"
 progname="speakingClock.py"
 pythonPath="python"
 
@@ -22,11 +22,13 @@ if [ ! -e $progpath/$progname ] ; then
 fi
 
 if [ -z "$( pgrep -f  $progpath/$progname )" ]; then
+echo "speakingClock not running"
   if [ "$1" = "start" ]; then
      echo "START   - Start $progpath/$progname in Background mode..."
-     /usr/bin/python3 $progpath/$progname > /home/pi/speaking_clock/logs.txt 2>&1 &
+     /usr/bin/python3 $progpath/$progname > /home/pi/pythonwork/speakingClock/logs.txt 2>&1 &
   fi
 else
+echo "speakingClock is running "
   if [ "$1" = "stop" ]; then
     echo "STATUS  - Stopping $progpath/$progname ...."
     progPID=$( pgrep -f $progpath/$progname )
@@ -46,3 +48,4 @@ else
     echo "INFO    - $0 stop"
 fi
 echo "Done"
+
