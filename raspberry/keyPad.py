@@ -79,7 +79,7 @@ def speakOutStandingBill():
 
 def isNight():
     now = datetime.datetime.now()
-    if now.hour >= 22 and now.hour < 6 :
+    if now.hour >= 22 or now.hour < 6 :
         return True;
     return False;
 
@@ -101,12 +101,16 @@ def setAlarm(charPressed):
         f = open("/home/pi/pythonwork/keypad/alarm.txt", "w")
         f.write(alarmTime)
         f.close()
-        am_pm = ".A.M.";
+        am_pm = ". AM";
         if (alarmHour >=12 ):
-            am_pm = ". P.M."
+            am_pm = ". PM"
             if (alarmHour >12 ):
                 alarmHour = alarmHour -12;
-        sayIt = "Sure, I have set the alarm for "+str(alarmHour)+":"+str(alarmMinute)+am_pm;
+        sayIt = "Sure, I have set the alarm for "+str(alarmHour)
+        if (alarmMinute >0):
+            sayIt += " : "+str(alarmMinute)
+        sayIt += am_pm;
+        print(sayIt)
         try:
             downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q="+sayIt+"&tl=en") 
         except (requests.ConnectionError, requests.Timeout) as exception: 

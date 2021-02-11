@@ -38,5 +38,6 @@ while (continueAlarm):
                 
             else:
                 print("no Ring alarm")
+                continueAlarm = False
     else:
         continueAlarm = False;
