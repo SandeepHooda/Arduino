@@ -12,8 +12,13 @@ import json
 import os
 import subprocess
 import os.path
+from time import sleep
 
-
+alarmFilePath = "/home/pi/pythonwork/keypad/alarm.txt";
+insideAlarmMode = False;
+alarmTime = "";
+alarmHour =0;
+alarmMinute =0;
 L1 = 19
 L2 = 13
 L3 =  6
@@ -37,12 +42,23 @@ GPIO.setup(C2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(C3, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(C4, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
+#Set buzzer - pin 23 as output
+buzzer=23 
+GPIO.setup(buzzer,GPIO.OUT)
+
+def beep():
+    GPIO.output(buzzer,GPIO.HIGH)
+    print ("Beep")
+    sleep(0.01) # Delay in seconds
+    GPIO.output(buzzer,GPIO.LOW)
+    
+
 def downLoadWavFile(filePath):
     #smartLantern = requests.get("http://192.168.0.199/toggle", allow_redirects=True)
     r = requests.get(filePath, allow_redirects=True) 
     open('/home/pi/pythonwork/keypad/voice.mp3', 'wb').write(r.content)
     subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/voice.mp3"])
-    time.sleep(3)
+    beep();
 def speakTime():
     if os.path.exists('/home/pi/pythonwork/keypad/voice.mp3'): # clear any old file
        os.remove("/home/pi/pythonwork/keypad/voice.mp3")
@@ -53,18 +69,77 @@ def speakTime():
        downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q="+localtime+"&tl=en") 
     except (requests.ConnectionError, requests.Timeout) as exception: 
        subprocess.run(["espeak" , localtime])
+def speakOutStandingBill():
+   downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Happy to help, Please wail while I get the balances.&tl=en")
+   r = requests.get("https://utility-bills.herokuapp.com/CheckUtilityBills_Pi", allow_redirects=True)
+   outstandingAmt = r.content.decode("utf-8") 
+   print(outstandingAmt)
+   downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q="+outstandingAmt+"&tl=en")
+  
 
 def isNight():
     now = datetime.datetime.now()
     if now.hour >= 22 and now.hour < 6 :
         return True;
     return False;
+
+def setAlarm(charPressed):
+    global insideAlarmMode
+    global alarmTime
+    global alarmMinute
+    global alarmHour
+    if (charPressed == '#'):#Exit alarm mode
+        insideAlarmMode = False;
+        if (len(alarmTime) > 0):
+            if (len(alarmTime) <= 2):
+                alarmHour = int(alarmTime)
+            else:
+                start = len(alarmTime) -2
+                alarmMinute = int(alarmTime[start:])
+                alarmHour = int(alarmTime[:start])
+        print("alarm time " ,alarmHour,":",alarmMinute)
+        f = open("/home/pi/pythonwork/keypad/alarm.txt", "w")
+        f.write(alarmTime)
+        f.close()
+        am_pm = ".A.M.";
+        if (alarmHour >=12 ):
+            am_pm = ". P.M."
+            if (alarmHour >12 ):
+                alarmHour = alarmHour -12;
+        sayIt = "Sure, I have set the alarm for "+str(alarmHour)+":"+str(alarmMinute)+am_pm;
+        try:
+            downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q="+sayIt+"&tl=en") 
+        except (requests.ConnectionError, requests.Timeout) as exception: 
+           subprocess.run(["espeak" , "Sure, I have set the alarm for "+sayIt])
+    else:
+        alarmTime += charPressed;
+        
     
 def startWork(charPressed):
     if (charPressed == '#' or isNight()):
         speakTime();
-   
-        
+    elif (charPressed == 'B'):
+        speakOutStandingBill();
+    elif (charPressed == 'A'):
+        global insideAlarmMode
+        global alarmTime
+        global alarmHour
+        global alarmMinute
+        insideAlarmMode = True;
+        print("Alarm Mode");
+        alarmTime = "";
+        alarmHour =0;
+        alarmMinute =0;
+        #subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/alarmHelp.mp3"])
+        #beep();
+        #downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Happy to. Enter the time in 24 hours format. Then press hash key to set the alarm.&tl=en")
+    elif (charPressed == '*'):
+        subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/help.mp3"])
+        beep();
+        #downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Happy to., Press. A. to set alarm. Press. B. to get outstanding bills. Press. Hash. to get current time.&tl=en")
+    elif (charPressed == 'D'):
+        if os.path.exists(alarmFilePath):
+            os.remove(alarmFilePath)
         
 
 def readLine(line, characters):
@@ -80,7 +155,11 @@ def readLine(line, characters):
         charPressed = characters[3];
     if (charPressed != ''):
         print(charPressed)
-        startWork(charPressed)
+        beep();
+        if (insideAlarmMode ):
+            setAlarm(charPressed)
+        else:
+            startWork(charPressed)
         time.sleep(.5)
     
     GPIO.output(line, GPIO.LOW)
