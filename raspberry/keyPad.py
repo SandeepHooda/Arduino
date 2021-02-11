@@ -120,7 +120,7 @@ def setAlarm(charPressed):
         
     
 def startWork(charPressed):
-    if (charPressed == '#' or isNight()):
+    if ((charPressed == '#' or isNight()) and charPressed != 'D'):
         speakTime();
     elif (charPressed == 'B'):
         speakOutStandingBill();
