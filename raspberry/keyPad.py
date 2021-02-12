@@ -70,7 +70,8 @@ def speakTime():
     except (requests.ConnectionError, requests.Timeout) as exception: 
        subprocess.run(["espeak" , localtime])
 def speakOutStandingBill():
-   downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Happy to help, Please wail while I get the balances.&tl=en")
+   #downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Happy to help,Please, wait while I get the balances.&tl=en")
+   subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/wait.mp3"])
    r = requests.get("https://utility-bills.herokuapp.com/CheckUtilityBills_Pi", allow_redirects=True)
    outstandingAmt = r.content.decode("utf-8") 
    print(outstandingAmt)
@@ -167,7 +168,7 @@ def readLine(line, characters):
         time.sleep(.5)
     
     GPIO.output(line, GPIO.LOW)
-
+beep();
 try:
     while True:
         readLine(L1, ["1","2","3","A"])
