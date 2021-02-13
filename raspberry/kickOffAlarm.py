@@ -4,6 +4,20 @@ import requests
 import urllib.request
 import subprocess
 import time
+import RPi.GPIO as GPIO
+from time import sleep
+
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+#Set buzzer - pin 23 as output
+buzzer=23 
+GPIO.setup(buzzer,GPIO.OUT)
+
+def beep(beepTime):
+    GPIO.output(buzzer,GPIO.HIGH)
+    print ("Beep")
+    sleep(beepTime) # Delay in seconds
+    GPIO.output(buzzer,GPIO.LOW)
 def downLoadWavFile(filePath):
     #smartLantern = requests.get("http://192.168.0.199/toggle", allow_redirects=True)
     r = requests.get(filePath, allow_redirects=True) 
@@ -11,6 +25,19 @@ def downLoadWavFile(filePath):
     subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/alarm.mp3"])
     
 filePath = "/home/pi/pythonwork/keypad/alarm.txt";
+filePathChoco = "/home/pi/pythonwork/keypad/ChocoNextSusu.txt";
+
+if os.path.exists(filePathChoco):
+    #Remider check for choco susu
+    f = open(filePathChoco, "r")
+    alarmTimeChoco = f.read()
+    now = datetime.datetime.now()
+    timeNow = str(now.hour)+str(now.minute)
+    print(timeNow, alarmTimeChoco)
+    if (timeNow == alarmTimeChoco):
+        beep(2)
+        os.remove(filePathChoco)
+#Generic alarm check
 continueAlarm = True;
 while (continueAlarm):
     if os.path.exists(filePath):

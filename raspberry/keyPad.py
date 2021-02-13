@@ -13,6 +13,8 @@ import os
 import subprocess
 import os.path
 from time import sleep
+import calendar
+from datetime import date
 
 alarmFilePath = "/home/pi/pythonwork/keypad/alarm.txt";
 insideAlarmMode = False;
@@ -63,7 +65,11 @@ def speakTime():
     if os.path.exists('/home/pi/pythonwork/keypad/voice.mp3'): # clear any old file
        os.remove("/home/pi/pythonwork/keypad/voice.mp3")
     localtime = time.localtime()
-    localtime ="Time is "+ time.strftime("%I:%M %p", localtime) 
+    if (isNight()):
+        localtime ="Time is "+ time.strftime("%I:%M %p", localtime)
+    else:
+        day =calendar.day_name[date.today().weekday()]
+        localtime ="Time is "+day+" . "+time.strftime("%d %B %I:%M %p", localtime)
     print(localtime)
     try:
        downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q="+localtime+"&tl=en") 
@@ -145,6 +151,21 @@ def startWork(charPressed):
     elif (charPressed == 'D'):
         if os.path.exists(alarmFilePath):
             os.remove(alarmFilePath)
+    elif (charPressed == '1' or charPressed == '2' or charPressed == '3'):
+        #Choco susu next time current time +1
+        now = datetime.datetime.now()
+        delta = 15 * int(charPressed);
+        if charPressed == '3':
+            delta = 60;
+        print(delta)
+        now_plus = now + datetime.timedelta(minutes = delta)
+        chocoAlarm = str(now_plus.hour )+str(now_plus.minute)
+        chocoAlarm_speak = str(now_plus.hour )+":"+str(now_plus.minute)
+        print(chocoAlarm)
+        f = open("/home/pi/pythonwork/keypad/ChocoNextSusu.txt", "w")
+        f.write(chocoAlarm)
+        f.close()
+        downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=All , Reminder set for choco walk "+chocoAlarm_speak+"&tl=en")
         
 
 def readLine(line, characters):
