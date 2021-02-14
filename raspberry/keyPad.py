@@ -58,7 +58,7 @@ def beep():
 def downLoadWavFile(filePath):
     #smartLantern = requests.get("http://192.168.0.199/toggle", allow_redirects=True)
     r = requests.get(filePath, allow_redirects=True) 
-    open('/home/pi/pythonwork/keypad/help.mp3', 'wb').write(r.content)
+    open('/home/pi/pythonwork/keypad/voice.mp3', 'wb').write(r.content)
     subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/voice.mp3"])
     beep();
 #downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Happy to., Press. A. to set alarm. Press. B. to get outstanding bills. Press. Hash. to get current time. Press 1 . 2. or 3 for setting choco alarm. &tl=en")
