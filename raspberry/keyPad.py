@@ -66,10 +66,10 @@ def speakTime():
        os.remove("/home/pi/pythonwork/keypad/voice.mp3")
     localtime = time.localtime()
     if (isNight()):
-        localtime ="Time is "+ time.strftime("%I:%M %p", localtime)
+        localtime ="Time is "+ time.strftime("%I:%M %p", localtime)+" ."
     else:
         day =calendar.day_name[date.today().weekday()]
-        localtime ="Time is "+day+" . "+time.strftime("%d %B %I:%M %p", localtime)
+        localtime ="Time is "+day+" . "+time.strftime("%d %B %I:%M %p", localtime)+" ."
     print(localtime)
     try:
        downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q="+localtime+"&tl=en") 

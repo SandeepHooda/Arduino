@@ -62,8 +62,16 @@ while (continueAlarm):
             if now.hour == alarmHour and now.minute == alarmMinute :
                 print("ring Alarm")
                 sayIt = "Your Attention please, You have a scheduled reminder at this time. Press. D. to stop the alarm."
-                subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/alarm.mp3"])
-                #downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q="+sayIt+"&tl=en")
+                reminderFile = '/home/pi/pythonwork/keypad/alarmMessage.txt'
+                reminderText ="";
+                if os.path.exists(reminderFile):
+                    f = open(reminderFile, "r")
+                    reminderText = f.read()
+                if (reminderText != ''):
+                    downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q="+reminderText+". Press. D. to stop the alarm.&tl=en")
+                else:
+                    subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/alarm.mp3"])
+                
                 
             else:
                 print("no Ring alarm")
