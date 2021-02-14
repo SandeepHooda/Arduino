@@ -36,6 +36,8 @@ if os.path.exists(filePathChoco):
     print(timeNow, alarmTimeChoco)
     if (timeNow == alarmTimeChoco):
         beep(2)
+        subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/ChocoWalk.mp3"])
+        subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/ChocoWalk.mp3"])
         os.remove(filePathChoco)
 #Generic alarm check
 continueAlarm = True;
