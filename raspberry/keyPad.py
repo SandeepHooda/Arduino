@@ -15,9 +15,11 @@ import os.path
 from time import sleep
 import calendar
 from datetime import date
+#from datetime import datetime
 
 alarmFilePath = "/home/pi/pythonwork/keypad/alarm.txt";
 insideAlarmMode = False;
+insideTimerMode = False;
 alarmTime = "";
 alarmHour =0;
 alarmMinute =0;
@@ -127,19 +129,37 @@ def setAlarm(charPressed):
            subprocess.run(["espeak" , "Sure, I have set the alarm for "+sayIt])
     else:
         alarmTime += charPressed;
-        
+
+def setTimer(charPressed):
+    global insideTimerMode
+    global alarmTime
+    global alarmMinute
+    global alarmHour
+    if (charPressed == '#'):#Exit timer mode
+        insideTimerMode = False;
+        now = datetime.datetime.now()
+        now_plus = now + datetime.timedelta(minutes = int(alarmTime))
+        f = open("/home/pi/pythonwork/keypad/timer.txt", "w")
+        f.write( now_plus.strftime( '%H%M'))
+        f.close()
+    else:
+        alarmTime += charPressed;
     
 def startWork(charPressed):
     if ((charPressed == '#' or isNight()) and charPressed != 'D'):
         speakTime();
     elif (charPressed == 'B'):
         speakOutStandingBill();
-    elif (charPressed == 'A'):
+    elif (charPressed == 'A' or charPressed == '0'):
         global insideAlarmMode
+        global insideTimerMode
         global alarmTime
         global alarmHour
         global alarmMinute
-        insideAlarmMode = True;
+        if (charPressed == 'A' ):
+            insideAlarmMode = True;
+        elif (charPressed == '0' ):
+            insideTimerMode = True;
         print("Alarm Mode");
         alarmTime = "";
         alarmHour =0;
@@ -201,6 +221,8 @@ def readLine(line, characters):
         beep();
         if (insideAlarmMode ):
             setAlarm(charPressed)
+        elif (insideTimerMode ):
+            setTimer(charPressed)
         else:
             startWork(charPressed)
         time.sleep(.5)
