@@ -61,8 +61,9 @@ def downLoadWavFile(filePath):
     open('/home/pi/pythonwork/keypad/voice.mp3', 'wb').write(r.content)
     subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/voice.mp3"])
     beep();
-#downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Happy to., Press. A. to set alarm. Press. B. to get outstanding bills. Press. Hash. to get current time. Press 1 . 2. or 3 for setting choco alarm. &tl=en")
-print("Start")
+#downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Happy to., Press. A. to set alarm. Press. B. to get outstanding bills. Press. Hash. to get current time. Press 1 . 2. or 3 for setting choco alarm. Press C. to turn on. light for 2 seconds. &tl=en")
+#downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Press 4,5,6 for music. &tl=en")
+print("Start work")
 def speakTime():
     if os.path.exists('/home/pi/pythonwork/keypad/voice.mp3'): # clear any old file
        os.remove("/home/pi/pythonwork/keypad/voice.mp3")
@@ -148,6 +149,7 @@ def startWork(charPressed):
         #downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Happy to. Enter the time in 24 hours format. Then press hash key to set the alarm.&tl=en")
     elif (charPressed == '*'):
         subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/help.mp3"])
+        subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/help2.mp3"])
         beep();
         #downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Happy to., Press. A. to set alarm. Press. B. to get outstanding bills. Press. Hash. to get current time.&tl=en")
     elif (charPressed == 'D'):
@@ -168,6 +170,20 @@ def startWork(charPressed):
         f.close()
         downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=All , Reminder set for choco walk "+chocoAlarm_speak+"&tl=en")
         
+    elif (charPressed == '4' or charPressed == '5' or charPressed == '6'):
+        f = open("/home/pi/pythonwork/keypad/music/"+charPressed+".txt", "w")
+        f.write(charPressed)
+        f.close()
+        #subprocess.run(["bash", "/home/pi/pythonwork/keypad/music/play.sh","2>&1"])
+        #/home/pi/pythonwork/keypad/music/play.sh
+    elif (charPressed == 'C' ):
+        r = requests.get("http://192.168.0.199/smartMode/off", allow_redirects=True)
+        r = requests.get("http://192.168.0.199/toggle", allow_redirects=True)
+        sleep(120)
+        r = requests.get("http://192.168.0.199/toggle", allow_redirects=True)
+        
+
+
 
 def readLine(line, characters):
     GPIO.output(line, GPIO.HIGH)
