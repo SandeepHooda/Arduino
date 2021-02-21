@@ -43,11 +43,12 @@ if os.path.exists(filePathChoco):
         os.remove(filePathChoco)
         
 if os.path.exists(filePathTimer):
+    print("timer")
     #Timer go off
     f = open(filePathTimer, "r")
     alarmTimeTimer = f.read()
     now = datetime.datetime.now()
-    timeNow = str(now.hour)+str(now.minute)
+    timeNow = now.strftime( '%H%M')
     print(timeNow, alarmTimeTimer)
     if (timeNow == alarmTimeTimer):
         beep(2)
