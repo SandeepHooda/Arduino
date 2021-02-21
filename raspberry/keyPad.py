@@ -142,6 +142,11 @@ def setTimer(charPressed):
         f = open("/home/pi/pythonwork/keypad/timer.txt", "w")
         f.write( now_plus.strftime( '%H%M'))
         f.close()
+        sayIt= "Sure, I have set timer for "+alarmTime+", minutes .";
+        try:
+            downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q="+sayIt+"&tl=en") 
+        except (requests.ConnectionError, requests.Timeout) as exception: 
+           subprocess.run(["espeak" , sayIt])
     else:
         alarmTime += charPressed;
     
