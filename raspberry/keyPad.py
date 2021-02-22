@@ -18,6 +18,7 @@ from datetime import date
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import re
+from num2words import num2words 
 #from datetime import datetime
 
 alarmFilePath = "/home/pi/pythonwork/keypad/alarm.txt";
@@ -214,8 +215,14 @@ def startWork(charPressed):
         soup = BeautifulSoup(html,"html.parser")
         todaysTitle = soup.title.string
         print(todaysTitle)
-        todaysTitle = re.sub('[^0-9 ]','. ', todaysTitle)
-        downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Hi Shaurya , School homework is as of "+todaysTitle+"&tl=en")
+        todaysTitle = re.sub('[^0-9]',' ', todaysTitle)
+        split = re.split(' ', todaysTitle)
+        homework = "";
+        for x in split:
+            if (x != ''):
+                print(num2words(x))
+                homework = homework + " . "+num2words(x);
+        downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Hi Shaurya , School homework is as of "+homework+"&tl=en")
         
 
 
