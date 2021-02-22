@@ -67,7 +67,7 @@ def downLoadWavFile(filePath):
     subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/voice.mp3"])
     beep();
 #downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Happy to., Press. A. to set alarm. Press. B. to get outstanding bills. Press. Hash. to get current time. Press 1 . 2. or 3 for setting choco alarm. Press C. to turn on. light for 2 minutes. &tl=en")
-#downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Press 0. for setting timer. Press 4,5,6 for music. &tl=en")
+#downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Press 0. for setting timer. Press 9. to know about school homework. Press 4,5,6 for music. &tl=en")
 print("Start work")
 def speakTime():
     if os.path.exists('/home/pi/pythonwork/keypad/voice.mp3'): # clear any old file
