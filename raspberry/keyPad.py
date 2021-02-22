@@ -95,7 +95,7 @@ def speakOutStandingBill():
 
 def isNight():
     now = datetime.datetime.now()
-    if  now.hour < 6 :
+    if  now.hour >= 21 or now.hour < 6 :
         return True;
     return False;
 
@@ -155,7 +155,7 @@ def setTimer(charPressed):
         alarmTime += charPressed;
     
 def startWork(charPressed):
-    if ((charPressed == '#' or isNight()) and charPressed != 'D'):
+    if ((charPressed == '#' or isNight()) and charPressed != 'D' and charPressed != 'C'):
         speakTime();
     elif (charPressed == 'B'):
         speakOutStandingBill();
