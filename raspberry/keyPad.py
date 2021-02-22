@@ -91,7 +91,7 @@ def speakOutStandingBill():
 
 def isNight():
     now = datetime.datetime.now()
-    if now.hour >= 22 or now.hour < 6 :
+    if  now.hour < 6 :
         return True;
     return False;
 
@@ -203,9 +203,9 @@ def startWork(charPressed):
         #/home/pi/pythonwork/keypad/music/play.sh
     elif (charPressed == 'C' ):
         r = requests.get("http://192.168.0.199/smartMode/off", allow_redirects=True)
-        r = requests.get("http://192.168.0.199/toggle", allow_redirects=True)
+        r = requests.get("http://192.168.0.199/forceMode/on", allow_redirects=True)
         sleep(120)
-        r = requests.get("http://192.168.0.199/toggle", allow_redirects=True)
+        r = requests.get("http://192.168.0.199/forceMode/off", allow_redirects=True)
         
 
 
