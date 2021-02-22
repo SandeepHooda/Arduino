@@ -15,6 +15,9 @@ import os.path
 from time import sleep
 import calendar
 from datetime import date
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
+import re
 #from datetime import datetime
 
 alarmFilePath = "/home/pi/pythonwork/keypad/alarm.txt";
@@ -206,6 +209,13 @@ def startWork(charPressed):
         r = requests.get("http://192.168.0.199/forceMode/on", allow_redirects=True)
         sleep(120)
         r = requests.get("http://192.168.0.199/forceMode/off", allow_redirects=True)
+    elif (charPressed == '9' ):
+        html = urlopen("https://drive.google.com/drive/folders/1rRcYP6BzN1o9vsULGwJbFCd5TbwiPDwj").read()
+        soup = BeautifulSoup(html,"html.parser")
+        todaysTitle = soup.title.string
+        print(todaysTitle)
+        todaysTitle = re.sub('[^0-9 ]','. ', todaysTitle)
+        downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Hi Shaurya , School homework is as of "+todaysTitle+"&tl=en")
         
 
 
