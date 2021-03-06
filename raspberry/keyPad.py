@@ -1,6 +1,6 @@
 # This example is a hello world example
 # for using a keypad with the Raspberry Pi
-
+import speech_recognition as sr
 import RPi.GPIO as GPIO
 import time
 import sys
@@ -95,7 +95,7 @@ def speakOutStandingBill():
 
 def isNight():
     now = datetime.datetime.now()
-    if  now.hour >= 21 or now.hour < 6 :
+    if  now.hour >= 23 or now.hour < 5 :
         return True;
     return False;
 
@@ -177,9 +177,33 @@ def startWork(charPressed):
         #beep();
         #downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Happy to. Enter the time in 24 hours format. Then press hash key to set the alarm.&tl=en")
     elif (charPressed == '*'):
-        subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/help.mp3"])
-        subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/help2.mp3"])
+        #subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/help.mp3"])
+        #subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/help2.mp3"])
+        recording = sr.AudioFile('/home/pi/pythonwork/keypad/record.wav')
+        r = sr.Recognizer()
         beep();
+        subprocess.run(["arecord", "--device=hw:1,0", "--format", "S16_LE", "--rate", "44100","-d","3", "-c1" , "record.wav"])
+        try:
+            with recording as source:
+                audio = r.record(source)
+                value = r.recognize_google(audio)
+            if str is bytes:
+                reply = "{}".format(value).encode("utf-8")
+            else:
+                reply = "{}".format(value)
+            print("You said: %s" % reply)
+            beep();
+            if (reply == "help"):
+                subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/help.mp3"])
+                subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/help2.mp3"])
+            elif (reply == "time"):
+                speakTime();
+                
+        except:
+            print("Sorry, Say it, One more time, please.")
+            subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/repeat.mp3"])
+            #downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Sorry, Say it, One more time, please.&tl=en") 
+        
         #downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Happy to., Press. A. to set alarm. Press. B. to get outstanding bills. Press. Hash. to get current time.&tl=en")
     elif (charPressed == 'D'):
         subprocess.run(["sudo", "reboot", "-h" ,"now" ])
@@ -210,7 +234,14 @@ def startWork(charPressed):
         r = requests.get("http://192.168.0.199/forceMode/on", allow_redirects=True)
         sleep(120)
         r = requests.get("http://192.168.0.199/forceMode/off", allow_redirects=True)
+    elif (charPressed == '7' ):
+        r = requests.get("http://192.168.0.198/bellRequest/on", allow_redirects=True)
+    elif (charPressed == '8' ):
+        r = requests.get("https://post-master.herokuapp.com/MakeACall?phone=919216411835&fromNumber=12111111111", allow_redirects=True)
     elif (charPressed == '9' ):
+        r = requests.get("https://post-master.herokuapp.com/MakeACall?phone=917837394152&fromNumber=12111111111", allow_redirects=True)
+    elif (charPressed == '19' ):
+        #https://post-master.herokuapp.com/MakeACall?phone=919216411835&fromNumber=12111111111
         html = urlopen("https://drive.google.com/drive/folders/1rRcYP6BzN1o9vsULGwJbFCd5TbwiPDwj").read()
         soup = BeautifulSoup(html,"html.parser")
         todaysTitle = soup.title.string
