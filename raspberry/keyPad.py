@@ -153,7 +153,30 @@ def setTimer(charPressed):
            subprocess.run(["espeak" , sayIt])
     else:
         alarmTime += charPressed;
-    
+
+def light():
+    r = requests.get("http://192.168.0.199/smartMode/off", allow_redirects=True)
+    r = requests.get("http://192.168.0.199/forceMode/on", allow_redirects=True)
+    sleep(120)
+    r = requests.get("http://192.168.0.199/forceMode/off", allow_redirects=True)
+def schoolHW():
+        html = urlopen("https://drive.google.com/drive/folders/1rRcYP6BzN1o9vsULGwJbFCd5TbwiPDwj").read()
+        soup = BeautifulSoup(html,"html.parser")
+        todaysTitle = soup.title.string
+        print(todaysTitle)
+        todaysTitle = re.sub('[^0-9]',' ', todaysTitle)
+        split = re.split(' ', todaysTitle)
+        homework = "";
+        for x in split:
+            if (x != ''):
+                print(num2words(x))
+                homework = homework + " . "+num2words(x);
+        downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Hi Shaurya , School homework is as of "+homework+"&tl=en")
+
+def playMusic(charPressed):
+    f = open("/home/pi/pythonwork/keypad/music/"+charPressed+".txt", "w")
+    f.write(charPressed)
+    f.close()
 def startWork(charPressed):
     if ((charPressed == '#' or isNight()) and charPressed != 'D' and charPressed != 'C'):
         speakTime();
@@ -191,6 +214,8 @@ def startWork(charPressed):
                 reply = "{}".format(value).encode("utf-8")
             else:
                 reply = "{}".format(value)
+            
+            reply= reply.lower();
             print("You said: %s" % reply)
             beep();
             if (reply == "help"):
@@ -198,6 +223,25 @@ def startWork(charPressed):
                 subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/help2.mp3"])
             elif (reply == "time"):
                 speakTime();
+            elif (reply == "school"):
+                schoolHW();
+            elif (reply == "sandeep"):
+                r = requests.get("https://post-master.herokuapp.com/MakeACall?phone=919216411835&fromNumber=12111111111", allow_redirects=True)
+            elif (reply == "kusum"):
+                r = requests.get("https://post-master.herokuapp.com/MakeACall?phone=917837394152&fromNumber=12111111111", allow_redirects=True)
+            elif (reply == "bill" or reply == "bil" or reply == "dil" or reply == "film"  or reply == "bel" or reply == "bills" or reply == "balance"):
+                speakOutStandingBill();
+                
+            elif (reply == "light"):
+                light();
+            elif (reply =="nature"):
+                playMusic('4');
+            elif (reply =="music"):
+                playMusic('6');
+            elif (reply =="instrumental"):
+                playMusic('5');
+            else:
+                subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/repeat.mp3"])
                 
         except:
             print("Sorry, Say it, One more time, please.")
@@ -224,16 +268,11 @@ def startWork(charPressed):
         downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=All , Reminder set for choco walk "+chocoAlarm_speak+"&tl=en")
         
     elif (charPressed == '4' or charPressed == '5' or charPressed == '6'):
-        f = open("/home/pi/pythonwork/keypad/music/"+charPressed+".txt", "w")
-        f.write(charPressed)
-        f.close()
+        playMusic(charPressed);
         #subprocess.run(["bash", "/home/pi/pythonwork/keypad/music/play.sh","2>&1"])
         #/home/pi/pythonwork/keypad/music/play.sh
     elif (charPressed == 'C' ):
-        r = requests.get("http://192.168.0.199/smartMode/off", allow_redirects=True)
-        r = requests.get("http://192.168.0.199/forceMode/on", allow_redirects=True)
-        sleep(120)
-        r = requests.get("http://192.168.0.199/forceMode/off", allow_redirects=True)
+        light();
     elif (charPressed == '7' ):
         r = requests.get("http://192.168.0.198/bellRequest/on", allow_redirects=True)
     elif (charPressed == '8' ):
@@ -241,20 +280,7 @@ def startWork(charPressed):
     elif (charPressed == '9' ):
         r = requests.get("https://post-master.herokuapp.com/MakeACall?phone=917837394152&fromNumber=12111111111", allow_redirects=True)
     elif (charPressed == '19' ):
-        #https://post-master.herokuapp.com/MakeACall?phone=919216411835&fromNumber=12111111111
-        html = urlopen("https://drive.google.com/drive/folders/1rRcYP6BzN1o9vsULGwJbFCd5TbwiPDwj").read()
-        soup = BeautifulSoup(html,"html.parser")
-        todaysTitle = soup.title.string
-        print(todaysTitle)
-        todaysTitle = re.sub('[^0-9]',' ', todaysTitle)
-        split = re.split(' ', todaysTitle)
-        homework = "";
-        for x in split:
-            if (x != ''):
-                print(num2words(x))
-                homework = homework + " . "+num2words(x);
-        downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Hi Shaurya , School homework is as of "+homework+"&tl=en")
-        
+        schoolHW();
 
 
 
