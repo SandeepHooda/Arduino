@@ -18,7 +18,11 @@ from datetime import date
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import re
-from num2words import num2words 
+from num2words import num2words
+sys.path.insert(1, "/home/pi/pythonwork/keypad/weather")
+import weather
+
+
 #from datetime import datetime
 
 alarmFilePath = "/home/pi/pythonwork/keypad/alarm.txt";
@@ -79,9 +83,13 @@ def speakTime():
     else:
         day =calendar.day_name[date.today().weekday()]
         localtime ="Time is "+day+" . "+time.strftime("%d %B %I:%M %p", localtime)+" ."
+        
+        
     print(localtime)
     try:
-       downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q="+localtime+"&tl=en") 
+       downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q="+localtime+"&tl=en")
+       if (isNight() == False):
+           speakRainForecast();
     except (requests.ConnectionError, requests.Timeout) as exception: 
        subprocess.run(["espeak" , localtime])
 def speakOutStandingBill():
@@ -95,7 +103,7 @@ def speakOutStandingBill():
 
 def isNight():
     now = datetime.datetime.now()
-    if  now.hour >= 23 or now.hour < 5 :
+    if  now.hour >= 23 or now.hour < 6 :
         return True;
     return False;
 
@@ -177,6 +185,11 @@ def playMusic(charPressed):
     f = open("/home/pi/pythonwork/keypad/music/"+charPressed+".txt", "w")
     f.write(charPressed)
     f.close()
+def speakRainForecast():
+    rainForecast= weather.findRain();
+    for obj in rainForecast:
+        downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Weather forecast,  "+obj.date +" , " +obj.forecast + " , "+ obj.percent +" ."+"&tl=en")
+    
 def startWork(charPressed):
     if ((charPressed == '#' or isNight()) and charPressed != 'D' and charPressed != 'C'):
         speakTime();
@@ -205,7 +218,7 @@ def startWork(charPressed):
         recording = sr.AudioFile('/home/pi/pythonwork/keypad/record.wav')
         r = sr.Recognizer()
         beep();
-        subprocess.run(["arecord", "--device=hw:1,0", "--format", "S16_LE", "--rate", "44100","-d","3", "-c1" , "record.wav"])
+        subprocess.run(["arecord", "--device=hw:1,0", "--format", "S16_LE", "--rate", "44100","-d","2", "-c1" , "record.wav"])
         try:
             with recording as source:
                 audio = r.record(source)
@@ -240,6 +253,9 @@ def startWork(charPressed):
                 playMusic('6');
             elif (reply =="instrumental"):
                 playMusic('5');
+            elif (reply == "weather"):
+                speakRainForecast();
+                
             else:
                 subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/repeat.mp3"])
                 
@@ -277,8 +293,10 @@ def startWork(charPressed):
         r = requests.get("http://192.168.0.198/bellRequest/on", allow_redirects=True)
     elif (charPressed == '8' ):
         r = requests.get("https://post-master.herokuapp.com/MakeACall?phone=919216411835&fromNumber=12111111111", allow_redirects=True)
+        beep();
     elif (charPressed == '9' ):
         r = requests.get("https://post-master.herokuapp.com/MakeACall?phone=917837394152&fromNumber=12111111111", allow_redirects=True)
+        beep();
     elif (charPressed == '19' ):
         schoolHW();
 
