@@ -15,7 +15,9 @@ class weatherObj:
         date = date.replace("Thu", "Thursday, ")
         date = date.replace("Fri", "Friday, ")
         date = date.replace("Sat", "Saturday, ") 
-        self.date = date 
+        self.date = date
+        
+        forecast = forecast.replace("T-Storms", "Thunderstorm, ")
         self.forecast = forecast
         self.percent = percent
     def __str__(self):
