@@ -189,6 +189,21 @@ def speakRainForecast():
     rainForecast= weather.findRain();
     for obj in rainForecast:
         downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Weather forecast,  "+obj.date +" , " +obj.forecast + " , "+ obj.percent +" % ."+"&tl=en")
+
+def speakHourlyForecast():
+    hourlyData = weather.extractWeatherFieldsHour();
+    if (len(hourlyData) > 0):
+        forecastData = "";
+        for obj in hourlyData:
+            forecastData += "Time, "+obj.date ;
+            if (int(obj.percent)  > 40):
+                forecastData += ", Chance of rain are high. Chances are "+obj.percent+" percent. ";
+            else:
+                forecastData += ". It will be windy. Wind speed will be "+obj.wind+", km/h . ";
+        downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q="+forecastData+".&tl=en")
+        #print(forecastData);
+    else:
+        downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Today, it will be sunny and quite for next 12 hours.&tl=en")
     
 def startWork(charPressed):
     if ((charPressed == '#' or isNight()) and charPressed != 'D' and charPressed != 'C'):
@@ -254,13 +269,16 @@ def startWork(charPressed):
             elif (reply =="instrumental"):
                 playMusic('5');
             elif (reply == "weather"):
+                speakHourlyForecast();
                 speakRainForecast();
-                
             else:
+                #print ("#", strip(reply),"#")
                 subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/repeat.mp3"])
                 
-        except:
-            print("Sorry, Say it, One more time, please.")
+        except Exception as e:
+            print(e)
+            print("Sorry, Say it, One more time, please...")
+            #print ("#", reply.strip(),"#")
             subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/repeat.mp3"])
             #downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Sorry, Say it, One more time, please.&tl=en") 
         
