@@ -188,7 +188,7 @@ def playMusic(charPressed):
 def speakRainForecast():
     rainForecast= weather.findRain();
     for obj in rainForecast:
-        downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Weather forecast,  "+obj.date +" , " +obj.forecast + " , "+ obj.percent +" ."+"&tl=en")
+        downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Weather forecast,  "+obj.date +" , " +obj.forecast + " , "+ obj.percent +" % ."+"&tl=en")
     
 def startWork(charPressed):
     if ((charPressed == '#' or isNight()) and charPressed != 'D' and charPressed != 'C'):
