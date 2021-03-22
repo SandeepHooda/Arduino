@@ -45,7 +45,7 @@ def extractWeatherFieldsHour():
     i = 0;
     for obj in weatherForecast:
         i += 1;
-        if ( i < 14 and ( int(obj.percent)  > 40 or int(obj.wind)  > 10) ) :
+        if ( i < 14 and ( int(obj.percent)  > 40 or int(obj.wind)  > 20) ) :
             rainForecast.append(obj)
             #print(obj)
     return rainForecast;
