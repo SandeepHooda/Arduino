@@ -21,6 +21,8 @@ import re
 from num2words import num2words
 sys.path.insert(1, "/home/pi/pythonwork/keypad/weather")
 import weather
+sys.path.insert(2, "/home/pi/pythonwork/keypad/news")
+import news
 
 
 #from datetime import datetime
@@ -188,8 +190,13 @@ def playMusic(charPressed):
 def speakRainForecast():
     rainForecast= weather.findRain();
     for obj in rainForecast:
-        downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Weather forecast,  "+obj.date +" , " +obj.forecast + " , "+ obj.percent +" % ."+"&tl=en")
-
+        downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Weather forecast,  "+obj.date +" , " +obj.forecast + " , chances of rain,  "+ obj.percent +" % ."+"&tl=en")
+def readNews():
+    allNews = news.extractNews();
+    downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q= Todayes headlines from tribune news paper are."+"&tl=en")
+    for anews in allNews:
+        downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q= "+anews +" ."+"&tl=en")
+    
 def speakHourlyForecast():
     hourlyData = weather.extractWeatherFieldsHour();
     if (len(hourlyData) > 0):
@@ -271,6 +278,8 @@ def startWork(charPressed):
             elif (reply == "weather"):
                 speakHourlyForecast();
                 speakRainForecast();
+            elif (reply == "news"):
+                readNews();
             else:
                 #print ("#", strip(reply),"#")
                 subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/repeat.mp3"])
