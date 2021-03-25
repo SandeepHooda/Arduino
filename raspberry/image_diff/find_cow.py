@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-#from skimage import measure 
+#from skimage import measure
+import datetime
 from skimage.metrics import structural_similarity
 import cv2
 import requests
@@ -13,13 +14,25 @@ import sys
 sys.path.insert(1, "/home/pi/pythonwork/image_diff")
 import findindex
 
+def isNight():
+    now = datetime.datetime.now()
+    if  now.hour >= 18 or now.hour < 9 :
+        return True;
+    return False;
+
+if (isNight()):
+    print("It is night")
+    quit();
+    
+print("lets check cow")
+
 base_image = "/home/pi/pythonwork/image_diff/img/base.jpg";
 base_image_org = "/home/pi/pythonwork/image_diff/img/base_orignal.jpg";
 new_image = "/home/pi/pythonwork/image_diff/img/new_img.jpg";
 new_image_org = "/home/pi/pythonwork/image_diff/img/new_img_orignal.jpg";
 merged_image_org = "/home/pi/pythonwork/image_diff/img/merged_img_orignal.jpg";
 
-#export GOOGLE_APPLICATION_CREDENTIALS="/home/pi/pythonwork/image_diff/gcp_keys/cow_idonotremember-app-ec1f74a76fdd.json"
+#export GOOGLE_APPLICATION_CREDENTIALS="/home/pi/keys/cow_idonotremember-app-ec1f74a76fdd.json"
 
 #click new photo
 r = requests.get("http://192.168.0.104:8080/photo.jpg", allow_redirects=True) 
