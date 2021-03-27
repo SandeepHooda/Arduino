@@ -1,0 +1,33 @@
+<!DOCTYPE=html>
+<html>
+<head>
+    <title>
+        Store Report
+    </title>
+</head>
+<body>
+    <button onclick="dnd()">Do not disturb</button> <p id="dnd_status"></p>
+    {% for hist in hists %}
+    {{hist}}<br/>
+    <img src="{{url_for('static', filename=hist)}}" alt="{{hist}}">
+    <br/>
+    {% endfor %}
+</body>
+
+<script>
+
+function dnd() {
+
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("dnd_status").innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "/dnd", true);
+  xhttp.send();
+
+}
+
+</script>
+</html>
