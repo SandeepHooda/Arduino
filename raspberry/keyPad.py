@@ -169,6 +169,9 @@ def light():
     r = requests.get("http://192.168.0.199/forceMode/on", allow_redirects=True)
     sleep(120)
     r = requests.get("http://192.168.0.199/forceMode/off", allow_redirects=True)
+def addToDo(task):
+    url = "https://idonotremember-app.appspot.com/AddToDo?task="+task
+    requests.get(url,  allow_redirects=True)
 def schoolHW():
         html = urlopen("https://drive.google.com/drive/folders/1rRcYP6BzN1o9vsULGwJbFCd5TbwiPDwj").read()
         soup = BeautifulSoup(html,"html.parser")
@@ -193,7 +196,6 @@ def speakRainForecast():
         downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Weather forecast,  "+obj.date +" , " +obj.forecast + " , chances of rain,  "+ obj.percent +" % ."+"&tl=en")
 def readNews():
     allNews = news.extractNews();
-    downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q= Todayes headlines from tribune news paper are."+"&tl=en")
     for anews in allNews:
         downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q= "+anews +" ."+"&tl=en")
     
@@ -258,8 +260,9 @@ def startWork(charPressed):
                 subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/help2.mp3"])
             elif (reply == "time"):
                 speakTime();
-            elif (reply == "school"):
+            elif (reply == "school" or reply == "homework"):
                 schoolHW();
+            
             elif (reply == "sandeep"):
                 r = requests.get("https://post-master.herokuapp.com/MakeACall?phone=919216411835&fromNumber=12111111111", allow_redirects=True)
             elif (reply == "kusum"):
@@ -281,8 +284,24 @@ def startWork(charPressed):
             elif (reply == "news"):
                 readNews();
             else:
-                #print ("#", strip(reply),"#")
-                subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/repeat.mp3"])
+                print ("#", reply,"#")
+                if (reply  and len(reply) > 1):
+                    print("getting cmd")
+                    splitStr = reply.split()
+                    cmd = splitStr[0]
+                    print (cmd)
+                    if (len(splitStr) >1 and (cmd == "reminder" or cmd == "remind" or cmd == "task" or cmd == "todo")):
+                        i =1
+                        task = ""
+                        while i< len(splitStr):
+                            task = task +" "+splitStr[i]
+                            i = i+1;
+                        print("reminder task ", task)
+                        addToDo(task.strip());
+                    else :
+                      subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/repeat.mp3"])  
+                else:
+                    subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/repeat.mp3"])
                 
         except Exception as e:
             print(e)
