@@ -173,7 +173,9 @@ def addToDo(task):
     url = "https://idonotremember-app.appspot.com/AddToDo?task="+task
     requests.get(url,  allow_redirects=True)
 def schoolHW():
-        html = urlopen("https://drive.google.com/drive/folders/1rRcYP6BzN1o9vsULGwJbFCd5TbwiPDwj").read()
+        html = urlopen("https://drive.google.com/drive/folders/1wP-6O7kQPqj2ybnAgoueWTQiqbIy6Lgx").read()
+        #https://drive.google.com/drive/folders/1wP-6O7kQPqj2ybnAgoueWTQiqbIy6Lgx 7
+        #https://drive.google.com/drive/folders/1rRcYP6BzN1o9vsULGwJbFCd5TbwiPDwj 6
         soup = BeautifulSoup(html,"html.parser")
         todaysTitle = soup.title.string
         print(todaysTitle)
@@ -242,7 +244,7 @@ def startWork(charPressed):
         recording = sr.AudioFile('/home/pi/pythonwork/keypad/record.wav')
         r = sr.Recognizer()
         beep();
-        subprocess.run(["arecord", "--device=hw:1,0", "--format", "S16_LE", "--rate", "44100","-d","2", "-c1" , "record.wav"])
+        subprocess.run(["arecord", "--device=hw:1,0", "--format", "S16_LE", "--rate", "44100","-d","5", "-c1" , "record.wav"])
         try:
             with recording as source:
                 audio = r.record(source)
@@ -298,6 +300,8 @@ def startWork(charPressed):
                             i = i+1;
                         print("reminder task ", task)
                         addToDo(task.strip());
+                        downLoadWavFile("http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=Reminder task added "+task+".&tl=en")
+                        
                     else :
                       subprocess.run(["omxplayer", "/home/pi/pythonwork/keypad/repeat.mp3"])  
                 else:
