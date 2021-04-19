@@ -1,0 +1,16 @@
+[
+    {
+        "replacement": {
+            "findPattern": "[\\s]extends[\\s]{1,}Action[\\s]{0,}\\{",
+            "replaceWith": "extends ActionSupport implements smt {",
+            
+        }
+    },
+    {
+        "replacement": {
+            "findPattern": "[\\s]extends[\\s]{1,}smtElse[\\s]{1,}\\{",
+            "replaceWith": "extends ActionSupport implements smt {",
+            
+        }
+    }
+]

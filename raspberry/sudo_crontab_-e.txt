@@ -1,1 +1,0 @@
-*/1 * * * * /home/pi/pythonwork/speakingClock/runClock.sh start >>  /home/pi/pythonwork/speakingClock/cronLog.txt 2>&1
