@@ -23,6 +23,7 @@
 
 #include <Keyboard.h>
 #include <Mouse.h>
+#define KEY_PRNT_SCRN 0xCE
 unsigned long time;
 void setup() {
   // open the serial port:
@@ -31,26 +32,27 @@ void setup() {
   Keyboard.begin();
    //Mouse.begin();
  // pinMode(regularPwd,INPUT);
+ pinMode(2, OUTPUT);
+ pinMode(3, INPUT); 
     
 }
 
-
+void beep(){
+ digitalWrite(2, HIGH);
+ delayMicroseconds(400);
+ digitalWrite(2, LOW);
+}
  void loop(){
-  
-  
-    Mouse.move(110, 110, 0);
-    delay(500);
-    Mouse.move(-110, -110, 0);
-    delay(500);
-   
-  
-   /*Keyboard.print("S");
 
-   delay(200);
-    Keyboard.press(KEY_BACKSPACE);
-    delay(200);
-   Keyboard.release(KEY_BACKSPACE);*/
-    
+   
+  if (digitalRead(3) == HIGH){
+    beep();
+    Keyboard.press(KEY_LEFT_GUI); 
+    Keyboard.press(KEY_PRNT_SCRN); 
+    Keyboard.releaseAll();
+  }
+   delay(50);
+  
     
  }
 

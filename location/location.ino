@@ -17,7 +17,7 @@ char mypass[] = "1234567890";          // your network password
 //Credentials for Google GeoLocation API...
 const char* Host = "www.googleapis.com";
 String thisPage = "/geolocation/v1/geolocate?key=";
-String key = ""
+String key = "AIzaSyCYNXIYINPmTNIdusMjJloS4_BXSOff1_g"; //AIzaSyAxUqib9tTNICwmFUxPXaPKPqZqn8Swmtw
 
 
 const char* HostAppSpot = "idonotremember-app.appspot.com";
