@@ -25,6 +25,8 @@
 #include <Mouse.h>
 #define KEY_PRNT_SCRN 0xCE
 unsigned long time;
+int screenShotCount = 1;
+boolean mouseMove = false;
 void setup() {
   // open the serial port:
  Serial.begin(9600);
@@ -42,17 +44,41 @@ void beep(){
  delayMicroseconds(400);
  digitalWrite(2, LOW);
 }
+
  void loop(){
 
    
   if (digitalRead(3) == HIGH){
+    
+     if ( (millis() - time) < 1000){
+      screenShotCount ++;
+      if ( screenShotCount > 5){
+        mouseMove = true;
+        
+      }
+     }else {
+      screenShotCount = 1;
+     }
+    Serial.println(screenShotCount);
+    time = millis();
     beep();
     Keyboard.press(KEY_LEFT_GUI); 
     Keyboard.press(KEY_PRNT_SCRN); 
     Keyboard.releaseAll();
+
+   delay(200);
+    
   }
    delay(50);
-  
+
+   
+
+  if (mouseMove){
+    Mouse.move(110, 110, 0);
+    delay(500);
+    Mouse.move(-110, -110, 0);
+    delay(500);
+  }
     
  }
 
